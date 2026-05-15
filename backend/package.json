@@ -1,0 +1,29 @@
+{
+  "name": "nusaroute-ai-backend",
+  "version": "1.0.0",
+  "description": "NusaRoute AI — Backend AI Service",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "logistics",
+    "ai",
+    "gemini"
+  ],
+  "author": "NusaRoute AI",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.8.0",
+    "multer": "^2.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

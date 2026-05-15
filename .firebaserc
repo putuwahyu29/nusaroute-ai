@@ -1,0 +1,13 @@
+{
+  "projects": {},
+  "targets": {
+    "nusaroute-ai-495512": {
+      "hosting": {
+        "nusaroute": [
+          "nusarouteai"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

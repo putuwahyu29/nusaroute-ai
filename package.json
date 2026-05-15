@@ -1,0 +1,30 @@
+{
+  "name": "nusaroute-ai",
+  "version": "1.0.0",
+  "description": "NusaRoute AI - AI-powered logistics optimization with real-time traffic and incident management",
+  "type": "module",
+  "scripts": {
+    "setup": "node setup-config.js",
+    "validate": "node validate-config.js",
+    "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "install:all": "npm install && npm install --workspace=backend && npm install --workspace=frontend"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  },
+  "keywords": [
+    "logistics",
+    "ai",
+    "gemini",
+    "firebase",
+    "real-time",
+    "routing"
+  ],
+  "author": "NusaRoute AI",
+  "license": "ISC"
+}

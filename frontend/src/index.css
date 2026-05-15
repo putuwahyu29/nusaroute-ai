@@ -1,0 +1,342 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,300;1,14..32,400&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Variables (Theme Tokens) ─────────────────────────────────────── */
+:root {
+  /* Light Mode (Default) — matches Tailwind convention */
+  --bg-main: #f1f5f9;
+  --bg-surface: #ffffff;
+  --text-main: #020617;
+  --text-muted: #334155;
+  --primary: #083344;
+  --border-color: rgba(0, 0, 0, 0.12);
+  --card-bg: #ffffff;
+  --nav-bg: #ffffff;
+}
+
+.dark {
+  /* Dark Mode */
+  --bg-main: #0f172a;
+  --bg-surface: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary: #52796f;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --card-bg: #1e293b;
+  --nav-bg: #0f172a;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+@layer base {
+  body {
+    @apply font-sans m-0 p-0 antialiased;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100dvh;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+}
+
+/* ── Theme-Aware Utilities ─────────────────────────────────────────────── */
+@layer utilities {
+  .bg-main {
+    background-color: var(--bg-main) !important;
+  }
+  .bg-surface {
+    background-color: var(--bg-surface) !important;
+  }
+  .bg-nav-bg {
+    background-color: var(--nav-bg) !important;
+  }
+  .border-theme {
+    border-color: var(--border-color) !important;
+  }
+  .text-text-main {
+    color: var(--text-main) !important;
+  }
+  .text-text-muted {
+    color: var(--text-muted) !important;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-soft::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-soft::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-soft::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--text-muted) 45%, transparent);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .scrollbar-soft {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--text-muted) 45%, transparent)
+      transparent;
+  }
+}
+
+/* ── Components ────────────────────────────────────────────────────────── */
+@layer components {
+  /* ── Cards: Always Opaque ─────────────────────────────── */
+  .glass-card,
+  .glass-card-sage {
+    @apply relative rounded-3xl border;
+    background-color: var(--card-bg); /* solid — prevents transparency */
+    border-color: var(--border-color);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  }
+
+  .glass-card-sage {
+    border-color: var(--primary);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 10px 25px -5px rgba(0, 0, 0, 0.15),
+      0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent);
+  }
+
+  /* Notification Card — solid, high contrast, always readable */
+  .notif-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    @apply rounded-2xl shadow-md;
+  }
+
+  /* ── Bottom Navigation ────────────────────────────────── */
+  .mobile-nav-pill {
+    @apply flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all duration-300;
+    color: var(--text-muted);
+    opacity: 0.85;
+  }
+
+  .mobile-nav-pill.active {
+    background-color: var(--primary);
+    color: #ffffff;
+    opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-nav-pill:not(.active):hover {
+    opacity: 1;
+    background-color: var(--border-color);
+  }
+
+  /* ── Compact Utility Card (no transparency) ───────────── */
+  .mobile-compact-card {
+    background-color: var(--card-bg);
+    @apply rounded-3xl border p-4;
+    border-color: var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  /* ── Map FAB Buttons (always visible on both themes) ──── */
+  .map-fab {
+    @apply w-11 h-11 rounded-full shadow-xl flex items-center justify-center transition-all;
+    background-color: var(--card-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-main);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .map-fab:active {
+    transform: scale(0.9);
+  }
+
+  .dark .map-fab {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .map-fab.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+  }
+
+  /* ── Buttons ──────────────────────────────────────────── */
+  .btn-sage {
+    background-color: var(--primary);
+    @apply text-white font-bold transition-all;
+  }
+  .btn-sage:hover {
+    opacity: 0.9;
+  }
+  .btn-sage:active {
+    transform: scale(0.97);
+  }
+  .btn-sage:disabled {
+    @apply opacity-50 cursor-not-allowed;
+    transform: none;
+  }
+
+  /* ── Status Pills ─────────────────────────────────────── */
+  .status-pill {
+    @apply inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 py-1;
+  }
+
+  /* ── Waveform Animation ───────────────────────────────── */
+  .wave-bar {
+    @apply rounded-full bg-sage-400;
+    animation: waveAnim 1.2s ease-in-out infinite;
+    height: 1rem;
+    width: 0.375rem;
+  }
+  .wave-bar:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .wave-bar:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  .wave-bar:nth-child(4) {
+    animation-delay: 0.45s;
+  }
+  .wave-bar:nth-child(5) {
+    animation-delay: 0.6s;
+  }
+  .wave-bar:nth-child(6) {
+    animation-delay: 0.75s;
+  }
+  .wave-bar:nth-child(7) {
+    animation-delay: 0.9s;
+  }
+  .wave-bar:nth-child(8) {
+    animation-delay: 1.05s;
+  }
+
+  @keyframes waveAnim {
+    0%,
+    100% {
+      transform: scaleY(0.4);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+}
+
+/* ── Utility Extras ────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient-sage {
+    background: linear-gradient(135deg, #84a98c, #cad2c5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .safe-pt {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  .safe-pb {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  /* Custom Scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(132, 169, 140, 0.3);
+    border-radius: 9999px;
+  }
+}
+
+/* ── Animations ────────────────────────────────────────────────────────── */
+@keyframes slideUp {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-slide-up,
+.animate-slide-up-mobile {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pulseSubtle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+.animate-pulse-subtle {
+  animation: pulseSubtle 3s ease-in-out infinite;
+}
+
+@keyframes bounceSubtle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.animate-bounce-subtle {
+  animation: bounceSubtle 2s ease-in-out infinite;
+}
+
+.truncate-2-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
