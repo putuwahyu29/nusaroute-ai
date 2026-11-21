@@ -1,0 +1,65 @@
+{
+  "name": "nusaroute-ai",
+  "version": "1.0.0",
+  "description": "NusaRoute AI - AI-powered logistics optimization with real-time traffic and incident management",
+  "type": "module",
+  "scripts": {
+    "setup": "node setup-config.js",
+    "validate": "node validate-config.js",
+    "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "deploy": "node deploy.js",
+    "deploy:backend": "node deploy.js --only=backend",
+    "deploy:frontend": "node deploy.js --only=frontend",
+    "deploy:scheduler": "node deploy.js --only=scheduler",
+    "install:all": "npm install && npm install --workspace=backend && npm install --workspace=frontend",
+    "codelab:export": "claat export -o codelab/dist codelab/nusaroute-ai-codelab.md && node codelab/enhance-codelab.js",
+    "codelab:serve": "node codelab/serve.js",
+    "codelab": "npm run codelab:serve",
+    "test:incident": "npm run test:incident --workspace=backend",
+    "test:voice": "npm run test:voice --workspace=backend",
+    "db:seed": "npm run seed --workspace=backend",
+    "db:reset": "npm run reset --workspace=backend",
+    "user:add": "tsx backend/src/scripts/register-user.ts",
+    "codelab:vercel": "npx vercel codelab/dist/nusaroute-ai-codelab --prod"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.2.5",
+    "katex": "^0.19.1"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.14.7",
+    "firebase": {
+      "@grpc/grpc-js": "1.14.7"
+    },
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "1.14.7"
+    },
+    "workbox-build": {
+      "glob": "14.0.6",
+      "minimatch": "11.0.9"
+    },
+    "glob": {
+      "minimatch": "11.0.9"
+    },
+    "minimatch": "11.0.9"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "keywords": [
+    "logistics",
+    "ai",
+    "gemini",
+    "firebase",
+    "real-time",
+    "routing"
+  ],
+  "author": "NusaRoute AI",
+  "license": "ISC"
+}

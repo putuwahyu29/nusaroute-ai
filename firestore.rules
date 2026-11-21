@@ -1,0 +1,231 @@
+rules_version = '2';
+
+// =============================================================================
+// NusaRoute AI — Cloud Firestore Security Rules (Zero-Trust Backend-Only)
+// =============================================================================
+//
+// ARCHITECTURE & SECURITY MODEL
+// -----------------------------
+// 1. Backend-Only Data Access (Firebase Admin SDK):
+//    ALL reads, queries, creates, updates, and batch writes to Cloud Firestore
+//    are performed EXCLUSIVELY by the Node.js / Express backend
+//    (`backend/src/services/firebase-admin.ts`) using the Firebase Admin SDK
+//    with GCP service-account credentials.
+//
+//    The Firebase Admin SDK authenticates via IAM and intentionally bypasses
+//    these client-facing Security Rules. All authentication, authorization,
+//    and business-logic invariants are enforced server-side in
+//    `backend/src/server.ts`, including:
+//      - Dual authentication flow issuing backend HS256 Bearer JWTs with
+//        Role-Based Access Control (`courier` | `dispatcher`):
+//          a) Username / Email + Password (`POST /api/login`), verified with
+//             salted scrypt hashing (`scrypt$<salt>$<key>`) in constant time
+//          b) Google Sign-In (`POST /api/login/google`), verified server-side
+//             via Firebase Admin SDK `admin.auth().verifyIdToken(idToken, true)`
+//      - Timing-safe `x-api-key` fallback for trusted system service calls
+//      - Per-IP rate limiting (with periodic pruning for long-running containers)
+//      - 200m Haversine geofencing (`DELIVERY_MARK_RADIUS_KM = 0.2`) before
+//        marking a delivery as `delivered`
+//      - Server-side Gemini AI incident analysis and autonomous routing agent
+//
+// 2. Strict Zero-Trust Client Lockdown:
+//    The React frontend (`frontend/src/`) does NOT perform direct Firestore
+//    client SDK reads or writes. It only uses the Firebase Web SDK for
+//    Firebase Auth Google Sign-In popup (`POST /api/login/google` token
+//    exchange) and optional FCM push notifications (`frontend/src/firebase.ts`),
+//    routing all application data exclusively through the authenticated Express
+//    REST API.
+//
+//    Even when a Google Sign-In user holds a Firebase Auth client session
+//    (`request.auth != null`), ALL direct client-SDK Firestore access
+//    (unauthenticated or authenticated) is explicitly denied
+//    (`allow read, write: if false;`) across every collection and nested
+//    subcollection to prevent:
+//      - Exposure of PII and secrets (user emails, scrypt/legacy password
+//        hashes, FCM device tokens, recipient names, and street addresses)
+//      - Privilege escalation (self-assigning `dispatcher` role)
+//      - Business-logic bypasses (marking deliveries `delivered` outside the
+//        200m geofence, forging AI incident decisions, or tampering with
+//        autonomous agent decisions and operational KPI snapshots)
+//      - Schema pollution and 1MB document DoS attacks
+//
+// 3. Future Client SDK Hardening Notice:
+//    If direct client-side Firestore access (e.g., `onSnapshot` real-time
+//    listeners) is ever added in the future, you MUST first enforce trusted
+//    Firebase Auth Custom Claims (`role`), split sensitive user fields
+//    (`password`, `fcmToken`, `email`) out of shared documents, and enforce
+//    strict schema Validator Functions on both `create` and `update` before
+//    relaxing any `if false` rule below.
+//
+// =============================================================================
+// Assumed Data Model (Managed Exclusively by Backend Admin SDK)
+// =============================================================================
+//
+// Collection: users
+// Document ID: Custom string user ID (e.g., "sby-c01", "admin-01") or
+//              Firebase Auth UID for Google-provisioned accounts
+// Sensitivity: HIGH (Contains PII, password hashes, and FCM device tokens)
+// Fields:
+//   - id: string (required, immutable) - unique user identifier
+//   - email: string (required, PII) - login email address (lowercase)
+//   - username: string (optional) - login username (e.g., email local-part)
+//   - name: string (required, PII) - full display name
+//   - role: string (required, enum: 'courier' | 'dispatcher') - RBAC role
+//   - region: string (optional) - assigned Surabaya operational region
+//   - hubLat: number (optional, -90..90) - courier home/dispatch hub latitude
+//   - hubLng: number (optional, -180..180) - courier home/dispatch hub longitude
+//   - authProvider: string (optional, enum: 'password' | 'google') - auth method
+//   - photoUrl: string (optional, URL) - Google profile avatar URL
+//   - password: string (optional, sensitive) - salted scrypt hash (or legacy
+//       SHA-256); omitted for Google-provisioned accounts
+//   - fcmToken: string (optional, sensitive) - FCM push notification token
+//   - fcmUpdatedAt: string (optional, ISO 8601) - last FCM token update time
+//   - createdAt: string (optional, immutable, ISO 8601) - account creation time
+//   - lastLoginAt: string (optional, ISO 8601) - last login timestamp
+//
+// Collection: deliveries
+// Document ID: Custom string delivery ID (e.g., "DEL-001")
+// Sensitivity: HIGH (Contains recipient PII, addresses, and geofenced status)
+// Fields:
+//   - id: string (required, immutable) - delivery identifier
+//   - courierId: string | null (required, nullable) - assigned courier ID
+//   - recipient: string (required, PII) - recipient name or drop-off point
+//   - address: string (required, PII) - physical street address
+//   - lat: number (required, -90..90) - destination latitude
+//   - lng: number (required, -180..180) - destination longitude
+//   - status: string (required, enum: 'unassigned' | 'pending' | 'in_transit' | 'delivered' | 'rerouted')
+//   - priority: string (required, enum: 'high' | 'medium' | 'low')
+//   - estimatedArrival: string | null (optional) - ETA window string
+//   - packageCount: number (optional, positive integer) - parcel count
+//   - timeSlot: string (optional) - scheduled delivery time window
+//   - notes: string (optional) - delivery instructions
+//   - pickupHub: map | null (optional) - { id?, label, reason, lat?, lng? }
+//   - isRerouted: bool (optional) - whether delivery was dynamically rerouted
+//   - deliveryNote: string | null (optional) - courier completion note
+//   - deliveredAt: string | null (optional, ISO 8601) - completion timestamp
+//
+// Collection: incident_reports
+// Document ID: Auto-generated Firestore document ID
+// Sensitivity: MEDIUM-HIGH (Operational incident logs and Gemini AI decisions)
+// Fields:
+//   - id: string (required, immutable) - report ID ("RPT-<timestamp>")
+//   - courierId: string (required, immutable) - reporting courier user ID
+//   - location: string (required) - reported incident location description
+//   - hasPhoto: bool (required) - indicates photo evidence was submitted
+//   - hasAudio: bool (required) - indicates audio/voice evidence was submitted
+//   - aiDecision: map (required) - structured Gemini AI analysis (action,
+//       severity, severityLabel, incidentType, incidentTypeLabel, analysis,
+//       recommendation, reroutePoints, estimatedDelay, optional telemetry)
+//   - createdAt: string (required, immutable, ISO 8601) - creation timestamp
+//
+// Collection: agent_decisions
+// Document ID: Custom string decision ID (`decision.id`)
+// Sensitivity: MEDIUM-HIGH (Persisted autonomous agent decision audit log)
+// Fields:
+//   - id: string (required, immutable) - decision identifier
+//   - type: string (required, enum: 'AUTONOMOUS_REROUTE' | 'HUB_OPTIMIZATION' |
+//       'TRAFFIC_ADVISORY' | 'LOAD_BALANCE' | 'STUCK_COURIER') - decision type
+//   - summary: string (required) - human-readable summary of agent action
+//   - details: map (optional) - structured decision context/metadata
+//   - estimatedSaving: number (optional) - estimated route/time savings
+//   - timestamp: string (required, immutable, ISO 8601) - decision timestamp
+//
+// Collection: traffic_zones
+// Document ID: Custom string zone ID (e.g., "zone-a1b2c3" or seeded zone ID)
+// Sensitivity: MEDIUM (Dynamic congestion and flood-prone routing zones)
+// Fields:
+//   - id: string (required, immutable) - unique traffic zone identifier
+//   - name: string (required) - zone display name
+//   - lat: number (required, -90..90) - zone center latitude
+//   - lng: number (required, -180..180) - zone center longitude
+//   - radius: number (required, > 0) - affected radius in kilometers
+//   - area: string (required) - city or district area label
+//   - peakHours: list (required) - list of [startHour, endHour] peak windows
+//   - floodProne: bool (required) - whether zone is flood-prone during rain
+//
+// Collection: system_state
+// Document ID: Fixed singleton key (e.g., "autonomous_agent")
+// Sensitivity: HIGH (Internal runtime state and operational KPI snapshot)
+// Fields (for `system_state/autonomous_agent`):
+//   - tickCount: number (required, integer >= 0) - cumulative agent ticks
+//   - lastTick: string | null (required, nullable, ISO 8601) - last tick time
+//   - lastHubAssessment: string | null (required, nullable, ISO 8601) - last
+//       pickup-hub evaluation time
+//   - stats: map (required) - AgentStats KPI counters (`totalDecisions`,
+//       `reroutesIssued`, `hubsAssigned`, `alertsSent`, `successfulReroutes`,
+//       `kmSaved`, `minutesSaved`, `deliveriesOnTime`, `deliveriesLate`,
+//       `totalDeliveriesCompleted`)
+//   - updatedAt: string (required, ISO 8601) - last snapshot persistence time
+//
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Collection: users
+    // Contains credentials (salted scrypt hashes), PII (email, name),
+    // roles, and FCM push tokens. Managed solely via Express + Admin SDK.
+    // -------------------------------------------------------------------------
+    match /users/{userId} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: deliveries
+    // Contains recipient addresses, courier assignments, and geofence-protected
+    // delivery statuses (200m Haversine check enforced in Express backend).
+    // Managed solely via Express + Admin SDK.
+    // -------------------------------------------------------------------------
+    match /deliveries/{deliveryId} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: incident_reports
+    // Created by the rate-limited Express `/api/analyze-incident` pipeline
+    // after Gemini AI multimodal analysis. Managed solely via Express + Admin SDK.
+    // -------------------------------------------------------------------------
+    match /incident_reports/{reportId} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: agent_decisions
+    // Persisted autonomous agent decision log (`saveAgentDecision` /
+    // `getRecentAgentDecisions`). Managed solely via Express + Admin SDK.
+    // -------------------------------------------------------------------------
+    match /agent_decisions/{decisionId} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: traffic_zones
+    // Dynamic traffic bottleneck and flood-prone zones managed via Express
+    // `GET/POST/DELETE /api/smart/zones` (`getTrafficZones`, `upsertTrafficZone`,
+    // `deleteTrafficZone`). Managed solely via Express + Admin SDK.
+    // -------------------------------------------------------------------------
+    match /traffic_zones/{zoneId} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: system_state
+    // Internal autonomous agent runtime snapshot (`system_state/autonomous_agent`
+    // via `saveAgentStateSnapshot` / `loadAgentStateSnapshot`). Managed solely
+    // via Express + Admin SDK.
+    // -------------------------------------------------------------------------
+    match /system_state/{docId} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Global Default-Deny Fallback
+    // Explicitly denies direct client access to all other collections and any
+    // nested subcollections (e.g., `/users/{userId}/{subcollection=**}`).
+    // -------------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

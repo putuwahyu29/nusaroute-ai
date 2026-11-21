@@ -1,0 +1,2070 @@
+
+<!doctype html>
+
+<html lang="id">
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Membangun NusaRoute AI: Multimodal Agentic Logistics dengan Gemini, Google Maps, Firestore &amp; Cloud Run</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+
+<!-- NUSAROUTE_ENHANCED_STYLES_START -->
+  <!-- KaTeX CSS (Local offline-first with CDN fallback) -->
+  <link rel="stylesheet" href="./katex/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+  <style>
+    /* Authentic Google Developers Typography & Reading Measure */
+    google-codelab-step .instructions {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #202124;
+      max-width: 900px;
+    }
+
+    google-codelab-step .instructions h2 {
+      color: #202124 !important;
+      font-size: 20px !important;
+      font-weight: 500 !important;
+      margin-top: 32px !important;
+      margin-bottom: 14px !important;
+      padding-bottom: 6px !important;
+      border-bottom: 1px solid #e8eaed !important;
+    }
+
+    google-codelab-step .instructions h3 {
+      color: #202124 !important;
+      font-size: 16px !important;
+      font-weight: 500 !important;
+      margin-top: 24px !important;
+      margin-bottom: 10px !important;
+    }
+
+    google-codelab-step .instructions h4 {
+      color: #3c4043 !important;
+      font-size: 14.5px !important;
+      font-weight: 600 !important;
+      margin-top: 18px !important;
+      margin-bottom: 8px !important;
+    }
+
+    google-codelab-step .instructions a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+
+    google-codelab-step .instructions a:hover {
+      text-decoration: underline;
+    }
+
+    /* Flat Google Cloud Docs Tables */
+    .table-responsive-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin: 18px 0;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      background: #ffffff;
+    }
+
+    google-codelab-step .instructions table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      margin: 0 !important;
+      font-size: 13.5px !important;
+      line-height: 1.55 !important;
+      border: none !important;
+    }
+
+    google-codelab-step .instructions table tr:first-child td {
+      background-color: #f8f9fa !important;
+      color: #202124 !important;
+      font-weight: 500 !important;
+      border-bottom: 1px solid #dadce0 !important;
+      padding: 10px 14px !important;
+      white-space: nowrap !important;
+    }
+
+    google-codelab-step .instructions table td {
+      padding: 10px 14px !important;
+      border-bottom: 1px solid #e8eaed !important;
+      vertical-align: top !important;
+      color: #3c4043 !important;
+      background-color: #ffffff !important;
+    }
+
+    google-codelab-step .instructions table tr:last-child td {
+      border-bottom: none !important;
+    }
+
+    google-codelab-step .instructions table tr:hover:not(:first-child) td {
+      background-color: #f8f9fa !important;
+    }
+
+    /* Subtle Borderless Inline Code (Google Developers Standard) */
+    google-codelab-step .instructions code:not(pre code) {
+      background-color: #f1f3f4 !important;
+      color: #202124 !important;
+      padding: 1px 5px !important;
+      border-radius: 3px !important;
+      font-size: 13px !important;
+      font-family: 'Roboto Mono', 'Source Code Pro', monospace !important;
+      border: none !important;
+    }
+
+    /* Native Light Google Codelab Code Blocks */
+    google-codelab-step pre {
+      background-color: #f8f9fa !important;
+      color: #202124 !important;
+      border: 1px solid #dadce0 !important;
+      border-radius: 4px !important;
+      padding: 14px 16px !important;
+      margin: 14px 0 !important;
+      font-size: 13px !important;
+      line-height: 1.55 !important;
+      box-shadow: none !important;
+      overflow-x: auto !important;
+    }
+
+    google-codelab-step pre code {
+      font-family: 'Roboto Mono', 'Source Code Pro', monospace !important;
+      background: transparent !important;
+      padding: 0 !important;
+      border: none !important;
+      color: #202124 !important;
+    }
+
+    /* Official Google Developers Light Syntax Highlighting Palette */
+    google-codelab-step pre .pln {
+      color: #202124 !important;
+    }
+
+    google-codelab-step pre .pun,
+    google-codelab-step pre .opn,
+    google-codelab-step pre .clo {
+      color: #3c4043 !important;
+    }
+
+    google-codelab-step pre .kwd {
+      color: #8430ce !important;
+    }
+
+    google-codelab-step pre .str,
+    google-codelab-step pre .atv {
+      color: #137333 !important;
+    }
+
+    google-codelab-step pre .com {
+      color: #5f6368 !important;
+      font-style: italic;
+    }
+
+    google-codelab-step pre .typ,
+    google-codelab-step pre .tag,
+    google-codelab-step pre .atn {
+      color: #1967d2 !important;
+    }
+
+    google-codelab-step pre .lit,
+    google-codelab-step pre .dec {
+      color: #b06000 !important;
+    }
+
+    /* Flat Google Material Callout Asides */
+    google-codelab-step .instructions aside.special,
+    google-codelab-step .instructions aside.tip {
+      background-color: #e8f0fe !important;
+      border-left: 4px solid #1a73e8 !important;
+      border-radius: 0 4px 4px 0 !important;
+      padding: 14px 18px !important;
+      margin: 20px 0 !important;
+      box-shadow: none !important;
+      color: #202124 !important;
+    }
+
+    google-codelab-step .instructions aside.warning {
+      background-color: #fef7e0 !important;
+      border-left: 4px solid #f9ab00 !important;
+      border-radius: 0 4px 4px 0 !important;
+      padding: 14px 18px !important;
+      margin: 20px 0 !important;
+      box-shadow: none !important;
+      color: #202124 !important;
+    }
+
+    google-codelab-step .instructions aside p {
+      margin: 6px 0 !important;
+      line-height: 1.6 !important;
+      color: #202124 !important;
+    }
+
+    google-codelab-step .instructions aside ul {
+      margin: 8px 0 6px 20px !important;
+      padding: 0 !important;
+      color: #3c4043 !important;
+    }
+
+    google-codelab-step .instructions aside li {
+      margin-bottom: 5px !important;
+      line-height: 1.55 !important;
+    }
+
+    google-codelab-step .instructions aside code:not(pre code) {
+      background-color: rgba(32, 33, 36, 0.08) !important;
+    }
+
+    /* Clean Textbook KaTeX Formula Presentation */
+    .katex-display {
+      display: block !important;
+      text-align: center !important;
+      padding: 16px 14px !important;
+      background: #ffffff !important;
+      border: 1px solid #dadce0 !important;
+      border-radius: 4px !important;
+      overflow-x: auto !important;
+      margin: 12px 0 !important;
+      font-size: 1.08em !important;
+      box-shadow: none !important;
+    }
+
+    .katex {
+      font-size: 1.03em !important;
+      color: #202124 !important;
+    }
+
+    /* Native Google Developers Style Copy Code Button */
+    .code-block-wrapper {
+      position: relative;
+      margin: 14px 0;
+    }
+
+    .code-block-wrapper pre {
+      margin: 0 !important;
+      padding-right: 92px !important;
+    }
+
+    .copy-code-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 28px;
+      padding: 0 8px;
+      background-color: #ffffff;
+      color: #5f6368;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      z-index: 2;
+      line-height: 1;
+    }
+
+    .copy-code-btn:hover {
+      background-color: #f1f3f4;
+      color: #202124;
+      border-color: #bdc1c6;
+    }
+
+    .copy-code-btn .material-icons {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .copy-code-btn.copied {
+      color: #137333;
+      border-color: #ceead6;
+      background-color: #e6f4ea;
+    }
+
+    /* Clean Google Developers Screenshot Framing & Lightbox */
+    .codelab-figure {
+      margin: 16px 0 20px 0;
+      padding: 0;
+    }
+
+    .codelab-figure img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      cursor: zoom-in;
+      background: #f8f9fa;
+    }
+
+    .codelab-caption {
+      margin-top: 6px;
+      font-size: 12.5px;
+      color: #5f6368;
+      line-height: 1.4;
+    }
+
+    .codelab-lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(32, 33, 36, 0.86);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 9999;
+      cursor: zoom-out;
+    }
+
+    .codelab-lightbox img {
+      max-width: 96vw;
+      max-height: 92vh;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+  </style>
+
+  <script>
+    (function() {
+      function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text).catch(function() {
+            return fallbackCopy(text);
+          });
+        }
+        return Promise.resolve(fallbackCopy(text));
+      }
+
+      function fallbackCopy(text) {
+        var textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand("copy");
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+
+      function enhanceCodelabElements() {
+        // 1. Wrap tables in responsive container
+        document.querySelectorAll("google-codelab-step table").forEach(function(table) {
+          if (!table.parentElement || !table.parentElement.classList.contains("table-responsive-wrapper")) {
+            var wrapper = document.createElement("div");
+            wrapper.className = "table-responsive-wrapper";
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+          }
+        });
+
+        // 2. Attach Google Developers style Copy button to all code blocks
+        document.querySelectorAll("google-codelab-step pre").forEach(function(pre) {
+          if (!pre.parentElement || pre.parentElement.classList.contains("code-block-wrapper")) {
+            return;
+          }
+
+          var wrapper = document.createElement("div");
+          wrapper.className = "code-block-wrapper";
+          pre.parentNode.insertBefore(wrapper, pre);
+          wrapper.appendChild(pre);
+
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "copy-code-btn";
+          btn.setAttribute("aria-label", "Salin kode");
+          btn.setAttribute("title", "Salin kode");
+          btn.innerHTML = '<span class="material-icons" aria-hidden="true">content_copy</span><span class="copy-label">Salin</span>';
+
+          btn.addEventListener("click", function() {
+            var codeEl = pre.querySelector("code");
+            var rawText = (codeEl ? codeEl.innerText : pre.innerText).trimEnd();
+            copyText(rawText).then(function() {
+              btn.classList.add("copied");
+              btn.innerHTML = '<span class="material-icons" aria-hidden="true">check</span><span class="copy-label">Tersalin</span>';
+              clearTimeout(btn._resetTimer);
+              btn._resetTimer = setTimeout(function() {
+                btn.classList.remove("copied");
+                btn.innerHTML = '<span class="material-icons" aria-hidden="true">content_copy</span><span class="copy-label">Salin</span>';
+              }, 1800);
+            });
+          });
+
+          wrapper.appendChild(btn);
+        });
+
+        // 3. Wrap screenshots in clean figure with caption and click-to-zoom lightbox
+        document.querySelectorAll("google-codelab-step img").forEach(function(img) {
+          if (img.closest(".codelab-figure")) return;
+          var figure = document.createElement("figure");
+          figure.className = "codelab-figure";
+          img.parentNode.insertBefore(figure, img);
+          figure.appendChild(img);
+
+          var altText = img.getAttribute("alt");
+          if (altText && altText.trim()) {
+            var caption = document.createElement("figcaption");
+            caption.className = "codelab-caption";
+            caption.textContent = altText.trim() + " (klik gambar untuk memperbesar)";
+            figure.appendChild(caption);
+          }
+
+          img.addEventListener("click", function() {
+            var overlay = document.createElement("div");
+            overlay.className = "codelab-lightbox";
+            var zoomed = document.createElement("img");
+            zoomed.src = img.src;
+            zoomed.alt = altText || "";
+            overlay.appendChild(zoomed);
+            overlay.addEventListener("click", function() {
+              if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            });
+            document.body.appendChild(overlay);
+          });
+        });
+      }
+
+      function localizeUI() {
+        var prevBtn = document.querySelector("#previous-step");
+        if (prevBtn) {
+          if (prevBtn.textContent.trim() === "Back") prevBtn.textContent = "Kembali";
+          prevBtn.setAttribute("title", "Langkah sebelumnya");
+        }
+
+        var nextBtn = document.querySelector("#next-step");
+        if (nextBtn) {
+          if (nextBtn.textContent.trim() === "Next") nextBtn.textContent = "Lanjut";
+          nextBtn.setAttribute("title", "Langkah berikutnya");
+        }
+
+        var doneBtn = document.querySelector("#done");
+        if (doneBtn) {
+          if (doneBtn.textContent.trim() === "Done") doneBtn.textContent = "Selesai";
+          doneBtn.setAttribute("title", "Codelab selesai");
+        }
+
+        document.querySelectorAll("google-codelab a").forEach(function(link) {
+          link.childNodes.forEach(function(node) {
+            if (node.nodeType === 3 && node.nodeValue.indexOf("Report a mistake") !== -1) {
+              node.nodeValue = node.nodeValue.replace("Report a mistake", "Laporkan kesalahan");
+            }
+          });
+        });
+
+        document.querySelectorAll(".codelab-time-container .time-remaining").forEach(function(el) {
+          el.childNodes.forEach(function(node) {
+            if (node.nodeType === 3) {
+              if (node.nodeValue.indexOf("mins remaining") !== -1) {
+                node.nodeValue = node.nodeValue.replace("mins remaining", "menit tersisa");
+              } else if (node.nodeValue.indexOf("min remaining") !== -1) {
+                node.nodeValue = node.nodeValue.replace("min remaining", "menit tersisa");
+              }
+            }
+          });
+        });
+      }
+
+      var timeObserverAttached = false;
+      function initLocalization() {
+        localizeUI();
+        if (!timeObserverAttached && typeof MutationObserver !== "undefined") {
+          var containers = document.querySelectorAll(".codelab-time-container");
+          if (containers.length > 0) {
+            var observer = new MutationObserver(localizeUI);
+            containers.forEach(function(c) {
+              observer.observe(c, { childList: true, subtree: true, characterData: true });
+            });
+            timeObserverAttached = true;
+          }
+        }
+      }
+
+      function onReady() {
+        enhanceCodelabElements();
+        initLocalization();
+      }
+
+      document.addEventListener("DOMContentLoaded", onReady);
+      document.addEventListener("google-codelab-ready", onReady);
+      document.addEventListener("google-codelab-step", localizeUI);
+      window.addEventListener("load", onReady);
+      window.addEventListener("hashchange", function() {
+        setTimeout(localizeUI, 30);
+      });
+    })();
+  </script>
+<!-- NUSAROUTE_ENHANCED_STYLES_END -->
+
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14" ga4id=""></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  codelab-ga4id=""
+                  id="nusaroute-ai-codelab"
+                  title="Membangun NusaRoute AI: Multimodal Agentic Logistics dengan Gemini, Google Maps, Firestore &amp; Cloud Run"
+                  environment="web"
+                  feedback-link="https://github.com/putuwahyu29/nusaroute-ai/issues">
+    
+      <google-codelab-step label="Pengenalan &amp; Arsitektur Sistem" duration="5">
+        <p>Workshop <strong>DevFest Cloud Surabaya 2026</strong> ini memandu peserta merancang dan mengimplementasikan <strong>NusaRoute AI</strong>. Platform logistik cerdas ini mengoptimalkan rute pengiriman paket di wilayah Kota Surabaya menggunakan AI multimodal.</p>
+<aside class="special"><p><strong>Ringkasan Workshop: Tujuan, Ruang Lingkup &amp; Hasil Akhir<br>1. Tujuan:</strong> Memahami cara kerja sistem AI multimodal yang menganalisis foto kemacetan dan pesan suara kurir, lalu memperbarui rute navigasi dan database secara otomatis.<br><strong>2. Ruang Lingkup:</strong> Platform <strong>NusaRoute AI</strong> fullstack (Node.js 22 LTS / Express 5 + React 18 PWA) untuk 15 titik pengiriman di Surabaya dengan antarmuka Kurir, Dispatcher, dan Analitik.<br><strong>3. Hasil Akhir:</strong> Aplikasi web siap produksi dengan alur: laporan kendala kurir → analisis AI Gemini → visualisasi rute baru di Google Maps &amp; validasi radius 200 meter → sinkronisasi data real-time ke Cloud Firestore.</p>
+</aside>
+<h2 is-upgraded>Apa yang Akan Anda Pelajari &amp; Bangun?</h2>
+<ol type="1">
+<li><strong>Analisis Multimodal dengan AI</strong>: Menggunakan <strong>Google Gemini 3.8 Flash</strong> untuk menganalisis foto kemacetan jalan dan voice note kurir menjadi data terstruktur (JSON).</li>
+<li><strong>Google Maps Platform &amp; Validasi Jarak</strong>: Mengintegrasikan <strong>Routes API</strong> (standar navigasi rute modern Google Cloud) dan Maps JavaScript API, menampilkan garis rute pengalihan pada peta interaktif, serta memvalidasi batas jarak 200 meter menggunakan formula Haversine.</li>
+<li><strong>Cloud Firestore &amp; Keamanan Data</strong>: Mengatur database NoSQL di region Jakarta (<code>asia-southeast2</code>) yang hanya dapat diakses melalui backend aman (Firebase Admin SDK), didukung dua opsi login (<strong>Username/Password</strong> dan <strong>Akun Google</strong>), serta Role-Based Access Control (RBAC).</li>
+<li><strong>Optimasi Rute &amp; Ketahanan Sistem</strong>: Menerapkan algoritma Nearest-Neighbor TSP solver, mekanisme exponential backoff, dan graceful shutdown.</li>
+<li><strong>Deployment Serverless</strong>: Men-deploy backend kontainer ke <strong>Google Cloud Run</strong> dan frontend React 18 PWA ke <strong>Firebase Hosting</strong>.</li>
+</ol>
+<h2 is-upgraded>Mengapa Agentic AI, Bukan Sekadar Chatbot?</h2>
+<p>Chatbot konvensional bersifat pasif karena hanya merespons input teks pengguna. Sebaliknya, <strong>Agentic AI</strong> beroperasi secara mandiri dan proaktif melalui siklus 4 tahap:</p>
+<ul>
+<li><strong>Monitor</strong>: Memantau kondisi lalu lintas, cuaca live (Open-Meteo), dan status rute setiap 3 menit.</li>
+<li><strong>Evaluate</strong>: Mendeteksi potensi kemacetan pada zona dinamis di Cloud Firestore (<code>traffic_zones</code>, studi kasus 10 zona rawan Surabaya).</li>
+<li><strong>Decide</strong>: Menentukan rute pengalihan dan pengumpulan paket di pos singgah terdekat (<em>Smart Hub</em>).</li>
+<li><strong>Act</strong>: Memperbarui instruksi navigasi kurir, menyimpan keputusan agen ke Firestore, dan memperbarui peta pemantau dispatcher.</li>
+</ul>
+<h2 is-upgraded>Spektrum Evolusi AI: Di Mana Posisi Agentic AI?</h2>
+<p>Untuk memahami posisi teknologi ini, perhatikan bagaimana paradigma AI berevolusi:</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Kategori AI</p>
+</td><td colspan="1" rowspan="1"><p>Karakteristik Utama</p>
+</td><td colspan="1" rowspan="1"><p>Contoh Kasus</p>
+</td><td colspan="1" rowspan="1"><p><strong>Catatan</strong></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Rule-Based (Berbasis Aturan)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Logika kaku berbasis aturan percabangan <code>if-else</code></p>
+</td><td colspan="1" rowspan="1"><p>Sistem tilang elektronik sederhana</p>
+</td><td colspan="1" rowspan="1"><p>Tidak adaptif terhadap situasi baru di luar skenario yang telah diprogram secara statis.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Predictive ML</strong></p>
+</td><td colspan="1" rowspan="1"><p>Prediksi angka/kategori dari data historis</p>
+</td><td colspan="1" rowspan="1"><p>Estimasi waktu tempuh (ETA) rata-rata</p>
+</td><td colspan="1" rowspan="1"><p>Tidak bisa bernalar dan tidak memahami foto atau suara.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Generative AI (Chatbot)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Menghasilkan teks/gambar berdasarkan prompt</p>
+</td><td colspan="1" rowspan="1"><p>Chatbot customer service</p>
+</td><td colspan="1" rowspan="1"><p>Bersifat <strong>pasif</strong>; hanya menjawab saat ditanya, tidak bisa aksi nyata.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Agentic AI (NusaRoute)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Otonom, memiliki persepsi, nalar, &amp; aksi</p>
+</td><td colspan="1" rowspan="1"><p>Asisten navigasi otonom Surabaya</p>
+</td><td colspan="1" rowspan="1"><p>Bergantung koneksi internet &amp; kuota API; kompleksitas implementasi lebih tinggi.</p>
+</td></tr>
+</table>
+<h2 is-upgraded>4 Kapabilitas Utama NusaRoute AI:</h2>
+<ol type="1">
+<li><strong>Persepsi</strong>: Memproses foto kemacetan dan voice note kurir langsung di RAM buffer (<em>zero disk I/O</em>).</li>
+<li><strong>Penalaran</strong>: Model Gemini 3.8 Flash menilai tingkat keparahan hambatan, memutuskan tindakan pengalihan rute (<code>REROUTE</code>), dan memperkirakan waktu keterlambatan.</li>
+<li><strong>Aksi</strong>: Sistem memanggil <strong>Google Routes API</strong> untuk menghitung rute alternatif baru dan langsung memperbarui data di Cloud Firestore.</li>
+<li><strong>Otonomi</strong>: Sistem memantau kondisi rute dan cuaca secara berkala setiap 3 menit (melalui proses latar belakang atau Cloud Scheduler), lalu memperbarui status ke Firestore.</li>
+</ol>
+<h2 is-upgraded>Rasional Arsitektur &amp; Pemilihan Model Gemini 3.8 Flash</h2>
+<p>Mengapa NusaRoute AI dibangun dengan arsitektur 4-Tier Serverless dan model <strong>Gemini 3.8 Flash</strong>? Keputusan desain ini berakar pada rekomendasi resmi <em>Google Cloud Architecture Framework</em> dan kebutuhan operasional kurir di lapangan.</p>
+<p class="image-container"><img alt="Diagram Alur Arsitektur Serverless NusaRoute AI" src="img/2d83f794250be326.png"></p>
+<h3 is-upgraded>1. Rasional Arsitektur: Mengapa Decoupled (Firebase Hosting + Cloud Run)?</h3>
+<ul>
+<li><strong>Bebas </strong><strong><em>cold start</em></strong><strong> pada Antarmuka Kurir</strong>: Frontend React 18 PWA disajikan melalui jaringan <strong>Firebase Hosting Global CDN</strong>. Saat kurir membuka aplikasi di ponsel, antarmuka langsung dimuat dalam tempo <strong>&lt;100 milidetik</strong> tanpa menunggu kontainer backend bangun dari status tidur.</li>
+<li><strong>Efisiensi Biaya </strong><strong><em>scale-to-zero</em></strong>: Backend Express 5 TypeScript dijalankan di <strong>Google Cloud Run</strong>. Saat tidak ada kurir aktif di luar jam operasional, kontainer otomatis diskalakan ke nol sehingga biaya komputasi menjadi <strong>Rp 0</strong> (<em>pay-as-you-go</em>).</li>
+<li><strong>Serverless Reverse Proxy (Satu Domain &amp; Eliminasi CORS)</strong>: Melalui aturan <code>rewrites</code> di <code>firebase.json</code>, Firebase Hosting merutekan path <code>/api/**</code> langsung ke Cloud Run di region Jakarta (<code>asia-southeast2</code>). <ul>
+<li><strong>Satu Custom Domain Terpadu</strong>: Frontend (<code>nusaroute-ai.web.id</code>) dan API backend (<code>nusaroute-ai.web.id/api</code>) berada di bawah domain yang sama, menghemat biaya Cloud Load Balancer (~$18/bulan) tanpa konfigurasi multi-subdomain terpisah.</li>
+<li><strong>Zero CORS Overhead</strong>: Berjalan secara <em>same-origin</em> sehingga browser kurir tidak perlu mengirimkan <em>preflight OPTIONS request</em>, memangkas latensi jaringan sebesar 50–100 ms.</li>
+<li><strong>Dual-Path Access</strong>: Backend Cloud Run tetap dilengkapi middleware CORS dinamis, sehingga Cloud Scheduler dan pengujian terminal/curl tetap dapat memanggil URL Cloud Run secara direct.</li>
+</ul>
+</li>
+<li><strong>Isolasi Keamanan Kunci Rahasia</strong>: Berkas browser kurir tidak pernah menyimpan <code>GEMINI_API_KEY</code> maupun berkas <em>Service Account</em> Firestore. Seluruh kredensial rahasia dan pemrosesan data biner (foto dan audio kurir di RAM) diisolasi aman di lingkungan serverless Cloud Run.</li>
+<li><strong>Mengapa Bukan VM Instance (Compute Engine)?</strong> VM menagih biaya sewa flat 24 jam nonstop meskipun sistem sedang menganggur di malam hari, serta memerlukan pemeliharaan sistem operasi Linux, konfigurasi Nginx, dan perpanjangan sertifikat SSL manual.</li>
+<li><strong>Mengapa Bukan Kontainer Monolitik?</strong> Menyatukan berkas frontend statis ke dalam satu kontainer backend Cloud Run akan memboroskan kuota komputasi CPU dan menyebabkan kurir mengalami <em>blank screen</em> 3–5 detik setiap kali kontainer mengalami <em>cold start</em>.</li>
+</ul>
+<h3 is-upgraded>Tabel Evaluasi Perbandingan Arsitektur Sistem</h3>
+<p>Berikut matriks perbandingan komprehensif antara arsitektur NusaRoute AI dengan berbagai alternatif arsitektur lain:</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Parameter Arsitektur</p>
+</td><td colspan="1" rowspan="1"><p>Opsi A: Monolitik VM / VPS (Compute Engine)</p>
+</td><td colspan="1" rowspan="1"><p>Opsi B: Kontainer Monolitik (Frontend + Backend di Cloud Run)</p>
+</td><td colspan="1" rowspan="1"><p>Opsi C: Microservices Kubernetes (Google GKE)</p>
+</td><td colspan="1" rowspan="1"><p>Opsi D: Decoupled Serverless (NusaRoute AI: Firebase + Cloud Run)</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Kecepatan Buka Web (UI)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Rata-rata (tergantung lokasi fisik server)</p>
+</td><td colspan="1" rowspan="1"><p><strong>Lambat</strong>: Terkena <em>cold start</em> (layar putih 3–5s saat bangun)</p>
+</td><td colspan="1" rowspan="1"><p>Cepat (via Ingress CDN)</p>
+</td><td colspan="1" rowspan="1"><p><strong>Sangat Cepat</strong>: &lt;100ms via Global Edge CDN (Bebas <em>cold start</em>)</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Biaya saat Menganggur (</strong><strong><em>Idle</em></strong><strong>)</strong></p>
+</td><td colspan="1" rowspan="1"><p><strong>Boros</strong>: Bayar sewa flat 24/7</p>
+</td><td colspan="1" rowspan="1"><p><strong>Hemat</strong>: Otomatis <em>scale-to-zero</em> ($0)</p>
+</td><td colspan="1" rowspan="1"><p><strong>Sangat Mahal</strong>: Minimal sewa klaster &amp; node</p>
+</td><td colspan="1" rowspan="1"><p><strong>Paling Hemat</strong>: <em>scale-to-zero</em> (Rp 0 saat di luar jam kerja)</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Beban Pemeliharaan (</strong><strong><em>Ops Overhead</em></strong><strong>)</strong></p>
+</td><td colspan="1" rowspan="1"><p><strong>Tinggi</strong>: Urus OS Linux, Nginx, patch, SSL manual</p>
+</td><td colspan="1" rowspan="1"><p>Rendah (Fully Managed)</p>
+</td><td colspan="1" rowspan="1"><p><strong>Sangat Tinggi</strong>: Manajemen pod, ingress, &amp; YAML</p>
+</td><td colspan="1" rowspan="1"><p><strong>Nol (</strong><strong><em>Zero Ops</em></strong><strong>)</strong>: Dikelola penuh secara serverless oleh Google</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Ketahanan Lonjakan Trafik (</strong><strong><em>Spike</em></strong><strong>)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Terbatas (perlu konfigurasi load balancer manual)</p>
+</td><td colspan="1" rowspan="1"><p>Otomatis Instan</p>
+</td><td colspan="1" rowspan="1"><p>Otomatis (via Horizontal Pod Autoscaler)</p>
+</td><td colspan="1" rowspan="1"><p><strong>Otomatis Instan</strong>: Menggandakan kontainer dalam hitungan detik</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Keamanan Kunci Rahasia AI</strong></p>
+</td><td colspan="1" rowspan="1"><p>Tergantung konfigurasi server</p>
+</td><td colspan="1" rowspan="1"><p>Aman di dalam kontainer</p>
+</td><td colspan="1" rowspan="1"><p>Aman via Kubernetes Secrets</p>
+</td><td colspan="1" rowspan="1"><p><strong>Sangat Aman</strong>: Kunci API terisolasi di Cloud Run &amp; Secret Manager</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Keputusan Evaluasi</strong></p>
+</td><td colspan="1" rowspan="1"><p>❌ <strong>Ditolak</strong> (biaya boros &amp; repot pemeliharaan)</p>
+</td><td colspan="1" rowspan="1"><p>❌ <strong>Ditolak</strong> (UI kurir lambat akibat <em>cold start</em>)</p>
+</td><td colspan="1" rowspan="1"><p>❌ <strong>Ditolak</strong> (terlalu rumit / <em>over-engineering</em>)</p>
+</td><td colspan="1" rowspan="1"><p>✅ <strong>DIPILIH</strong>: Keseimbangan terbaik performa, biaya, dan kemudahan</p>
+</td></tr>
+</table>
+<h3 is-upgraded>2. Rasional Model AI: Mengapa Memilih Gemini 3.8 Flash?</h3>
+<ul>
+<li><strong>Kecepatan Latensi Operasional (&lt; 2 Detik)</strong>: Kurir di jalan raya memerlukan pembaruan navigasi seketika. Varian Flash dioptimalkan untuk inferensi waktu-nyata (<em>low-latency</em> rata-rata 1–1,8 detik), berbeda dengan varian Pro yang membutuhkan waktu penalaran 5–10 detik.</li>
+<li><strong>Native Multimodal (Foto + Suara Sekaligus)</strong>: Gemini 3.8 Flash memproses foto rintangan jalan dan rekaman suara kurir secara langsung dalam satu payload permintaan API. Tidak diperlukan alat perantara terpisah seperti Computer Vision atau Speech-to-Text yang dapat menambah latensi dan <em>single point of failure</em>.</li>
+<li><strong>Kapasitas Kuota &amp; Efisiensi Biaya Token</strong>: Varian Flash menawarkan batas <em>Requests Per Minute</em> (RPM) dan kuota token yang jauh lebih longgar dan ekonomis di Google AI Studio / GCP. Hal ini menjamin kelancaran sesi live demo tanpa risiko tercekik batas kuota (<em>429 Rate Limit Exceeded</em>).</li>
+<li><strong>Deterministik &amp; Integritas Format</strong>: Konfigurasi <strong><code>temperature: 0.1</code></strong> meminimalkan variasi output acak, sedangkan <strong><code>responseSchema</code></strong><strong> (Structured Outputs JSON Schema)</strong> mengunci enum tindakan (<code>REROUTE</code>, <code>WAIT</code>, <code>REDIRECT_TO_HUB</code>, <code>ESCALATE</code>). Format di luar skema otomatis ditolak backend sehingga integritas data tetap terjamin.</li>
+</ul>
+<h2 is-upgraded>Google Cloud Best Practice Matrix: Anti-Pattern vs. Recommended Practice</h2>
+<p>Workshop ini dirancang dengan mengacu pada prinsip <strong>Google Cloud Well-Architected Framework</strong>. Tabel berikut membedah perbedaan antara praktik umum yang keliru (<em>anti-pattern</em>) dengan standar arsitektur terbaik (<em>best practice</em>) yang diterapkan pada NusaRoute AI:</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Produk Google</p>
+</td><td colspan="1" rowspan="1"><p>❌ Anti-Pattern (Praktik Keliru / Rawan Masalah)</p>
+</td><td colspan="1" rowspan="1"><p>✅ Google Cloud Best Practice (Diterapkan di NusaRoute AI)</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Google Gemini API</strong></p>
+</td><td colspan="1" rowspan="1"><p>Prompt teks bebas (<em>free-form</em>) tanpa skema terstruktur, atau memakai model Pro lambat (5–10s) untuk sistem navigasi kurir.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Gemini 3.8 Flash + Structured Outputs (</strong><strong><code>responseSchema</code></strong><strong>) + </strong><strong><code>temperature: 0.1</code></strong>: Inferensi multimodal instan (&lt;2 detik) langsung dari RAM buffer (<em>zero disk I/O</em>) dengan format data deterministik.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Google Cloud Run</strong></p>
+</td><td colspan="1" rowspan="1"><p>Menjalankan VM Compute Engine 24/7 yang menagih sewa flat saat idle malam hari, atau kontainer tanpa pembatas autoscaling.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Google Cloud Run (Region Jakarta </strong><strong><code>asia-southeast2</code></strong><strong>) + </strong><strong><em>Scale-to-Zero</em></strong>: Biaya komputasi Rp 0 saat di luar jam operasional, auto-scale instan saat lonjakan pesanan, dengan batas aman <code>--max-instances 3</code>.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Firebase Hosting + Cloud Run</strong></p>
+</td><td colspan="1" rowspan="1"><p>Memisahkan frontend dan backend pada domain berbeda, memerlukan sewa Cloud Load Balancer (~$18/bulan) dan memicu latensi <em>CORS preflight</em>.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Serverless Reverse Proxy (</strong><strong><code>firebase.json rewrites: /api/**</code></strong><strong>)</strong>: Menggabungkan Web &amp; API di bawah satu domain, mengeliminasi biaya Load Balancer dan bebas overhead latensi CORS.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Google Maps Platform</strong></p>
+</td><td colspan="1" rowspan="1"><p>Memanggil Routes API / Directions API terus-menerus tanpa filter, memboroskan kuota dan biaya API per request.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Hybrid Spatial Filtering</strong>: Validasi geofencing awal via formula <strong>Haversine ($O(n^2)$)</strong> lokal di backend. Routes API hanya dipanggil ketika rute kurir benar-benar terdampak kemacetan.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Cloud Firestore</strong></p>
+</td><td colspan="1" rowspan="1"><p>Membuka akses database langsung dari browser publik tanpa aturan keamanan, atau memakai database relasional yang lambat saat <em>cold start</em>.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Firebase Admin SDK Terisolasi di Backend + Region Jakarta (</strong><strong><code>asia-southeast2</code></strong><strong>)</strong>: Akses database hanya melalui API backend terotentikasi, meminimalkan latensi jaringan dan menjamin integritas data.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Google Cloud Scheduler</strong></p>
+</td><td colspan="1" rowspan="1"><p>Menjalankan <em>timer loop</em> internal (<code>setInterval</code>) di dalam server kontainer yang berisiko duplikasi eksekusi saat multi-instance.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Managed Serverless Cron</strong>: Memanggil endpoint <code>POST /api/agent/tick</code> tiap 3 menit via Cloud Scheduler terpusat dengan otentikasi header <code>X-API-Key</code>.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Google Cloud Logging</strong></p>
+</td><td colspan="1" rowspan="1"><p>Menggunakan <code>console.log</code> teks biasa yang tidak dapat difilter atau dianalisis saat terjadi insiden di Cloud Run.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Structured JSON Logging</strong>: Memancarkan log berstandar Google Cloud Logging (<code>httpRequest</code>, <code>severity</code>, <code>latencySec</code>) yang dapat langsung di-query di <em>Cloud Logs Explorer</em>.</p>
+</td></tr>
+</table>
+<h2 is-upgraded>Studi Kasus Nyata: Smart Urban Logistics Kota Surabaya</h2>
+<p>Mengapa studi kasus ini relevan dan aplikatif untuk dipraktikkan?</p>
+<ol type="1">
+<li><strong>Toponimi &amp; Kondisi Lapangan Nyata</strong>: Sistem menggunakan 15 koordinat pengantaran riil Surabaya (<code>DEL-001</code> s.d. <code>DEL-015</code>) dan 10 zona rawan macet serta genangan air Surabaya (Wonokromo, Mayjen Sungkono, Ahmad Yani, Darmo, Kertajaya).</li>
+<li><strong>Mitigasi Masalah Operasional Kurir</strong>: <ul>
+<li><strong>Keselamatan Pengemudi</strong>: Kurir tidak perlu mengetik teks di jalan raya. Cukup kirim <strong>Voice Note langsung ke Gemini</strong> untuk pelaporan rintangan.</li>
+<li><strong>Pencegahan Fraud (Penyelesaian Fiktif)</strong>: Tombol konfirmasi pengiriman dikunci otomatis jika kurir belum berada dalam <strong>radius fisik 200 meter (Geofencing Haversine)</strong> dari alamat tujuan.</li>
+<li><strong>Efisiensi Bahan Bakar</strong>: Algoritma <strong>Nearest-Neighbor TSP Solver</strong> mengurutkan pengantaran sehingga menghemat ~19% jarak tempuh bolak-balik kurir.</li>
+</ul>
+</li>
+</ol>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Prasyarat Alat (Tooling) &amp; Setup Repositori" duration="12">
+        <p>Sebelum memulai praktikum, pastikan lingkungan kerja dan alat-alat esensial berikut telah siap di laptop Anda.</p>
+<h2 is-upgraded>1. Checklist Prasyarat Alat (Tooling Checklist)</h2>
+<p>Untuk mengikuti workshop hands-on ini secara maksimal, Anda memerlukan alat-alat berikut:</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Alat / Tool</p>
+</td><td colspan="1" rowspan="1"><p>Versi Minimum</p>
+</td><td colspan="1" rowspan="1"><p>Deskripsi &amp; Peran</p>
+</td><td colspan="1" rowspan="1"><p>Tautan Unduh / Panduan</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Google Antigravity IDE </strong><em>(Disarankan)</em></p>
+</td><td colspan="1" rowspan="1"><p>Versi Terbaru</p>
+</td><td colspan="1" rowspan="1"><p>Editor berkemampuan Agentic AI buatan Google DeepMind dengan autonomous agent, workspace terintegrasi, dan inspeksi kode langsung. <em>(Dapat juga menggunakan VS Code)</em></p>
+</td><td colspan="1" rowspan="1"><p><a href="https://antigravity.google" target="_blank">antigravity.google</a> / <a href="https://code.visualstudio.com" target="_blank">code.visualstudio.com</a></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Google Cloud CLI (</strong><strong><code>gcloud</code></strong><strong>)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Versi 450.0.0+</p>
+</td><td colspan="1" rowspan="1"><p>CLI resmi Google Cloud untuk autentikasi GCP, enable API, pengelolaan IAM, dan deploy Cloud Run.</p>
+</td><td colspan="1" rowspan="1"><p><a href="https://cloud.google.com/sdk/docs/install" target="_blank">cloud.google.com/sdk/docs/install</a></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Node.js &amp; NPM</strong></p>
+</td><td colspan="1" rowspan="1"><p>Node.js 22 LTS (Active LTS) / NPM 10+</p>
+</td><td colspan="1" rowspan="1"><p>Runtime JavaScript/TypeScript modern yang didukung resmi (Node.js 18 dan versi di bawahnya sudah End-of-Life / EOL).</p>
+</td><td colspan="1" rowspan="1"><p><a href="https://nodejs.org" target="_blank">nodejs.org</a></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Git</strong></p>
+</td><td colspan="1" rowspan="1"><p>Versi 2.30+</p>
+</td><td colspan="1" rowspan="1"><p>Version control untuk clone repositori starter.</p>
+</td><td colspan="1" rowspan="1"><p><a href="https://git-scm.com" target="_blank">git-scm.com</a></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Gemini API Key</strong></p>
+</td><td colspan="1" rowspan="1"><p>-</p>
+</td><td colspan="1" rowspan="1"><p>Kunci API gratis untuk model Gemini 3.8 Flash.</p>
+</td><td colspan="1" rowspan="1"><p><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></p>
+</td></tr>
+</table>
+<h2 is-upgraded>2. Panduan Instalasi Cepat Tooling</h2>
+<h3 is-upgraded>A. Verifikasi Node.js dan Git</h3>
+<p>Buka terminal (PowerShell, Command Prompt, atau Terminal macOS/Linux) dan jalankan:</p>
+<pre><code language="language-bash" class="language-bash">node -v   # Wajib versi LTS aktif (Node.js 22.x LTS atau lebih baru; Node 18 &amp; 20 sudah EOL)
+npm -v    # Versi 10.x atau lebih baru (bawaan Node.js 22 LTS)
+git --version
+</code></pre>
+<p>Jika belum terpasang, pasang Node.js 22 LTS (Active Long-Term Support) dari <a href="https://nodejs.org" target="_blank">nodejs.org</a> dan Git dari <a href="https://git-scm.com" target="_blank">git-scm.com</a>.</p>
+<h3 is-upgraded>B. Instalasi &amp; Autentikasi Google Cloud CLI (<code>gcloud</code>)</h3>
+<p>Tool <code>gcloud</code> sangat penting untuk mengaktifkan API GCP dan men-deploy kontainer ke Cloud Run:</p>
+<ul>
+<li><strong>Windows:</strong> Unduh dan jalankan installer resmi <a href="https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe" target="_blank">Google Cloud SDK</a>.</li>
+<li><strong>macOS:</strong> Pasang via Homebrew: <pre><code language="language-bash" class="language-bash">brew install --cask google-cloud-sdk
+</code></pre>
+</li>
+<li><strong>Linux:</strong> Jalankan skrip instalasi otomatis: <pre><code language="language-bash" class="language-bash">curl https://sdk.cloud.google.com | bash
+exec -l $SHELL
+</code></pre>
+</li>
+</ul>
+<p>Setelah instalasi <code>gcloud</code> selesai, ikuti alur berurutan berikut untuk autentikasi dan penyiapan Google Cloud Project:</p>
+<p><strong>Langkah a: Autentikasi Akun Google Anda</strong></p>
+<pre><code language="language-bash" class="language-bash">gcloud auth login
+</code></pre>
+<p>(Perintah ini akan membuka jendela browser. Pilih akun Google/Gmail Anda dan klik <strong>Allow</strong>).</p>
+<p><strong>Langkah b: Menyiapkan Google Cloud Project (Pilih salah satu kondisi):</strong></p>
+<ul>
+<li><strong>Kondisi 1 — Jika Anda SUDAH memiliki project di Google Cloud:</strong> Periksa daftar project yang tersedia di akun Anda:<pre><code language="language-bash" class="language-bash">gcloud projects list
+</code></pre>
+Salin nilai dari kolom <code>PROJECT_ID</code> (contoh: <code>my-logistics-441209</code>), lalu tetapkan sebagai project aktif:<pre><code language="language-bash" class="language-bash">gcloud config set project my-logistics-441209
+</code></pre>
+</li>
+<li><strong>Kondisi 2 — Jika belum memiliki project (Buat project baru):</strong> Project ID harus <strong>unik secara global</strong> (6–30 karakter huruf kecil, angka, dan tanda strip <code>-</code>).<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash"># Ganti &#39;nusaroute-sby-2026&#39; dengan ID unik Anda
+gcloud projects create nusaroute-sby-2026 --name=&#34;NusaRoute AI&#34;
+gcloud config set project nusaroute-sby-2026
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong> Buka <a href="https://console.cloud.google.com/cloud-resource-manager" target="_blank">Cloud Resource Manager</a> (atau langsung ke <a href="https://console.cloud.google.com/projectcreate" target="_blank">console.cloud.google.com/projectcreate</a>), klik <strong>+ Create project</strong>, buat project baru, lalu aktifkan via <code>gcloud config set project &lt;PROJECT_ID&gt;</code>.</li>
+</ul>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman Manage Resources &amp; Create Project di Google Cloud Console" src="img/9897ddba7babe8a1.png"></p>
+<p><strong>Langkah c: Memilih &amp; Menautkan Billing Account ke Project (Disarankan untuk Cloud Run &amp; API Produksi)</strong></p>
+<p>Agar layanan seperti <strong>Cloud Run</strong>, <strong>Cloud Scheduler</strong>, dan kuota produksi Google Maps/Firestore dapat diaktifkan tanpa error <code>Billing account not found</code>, tautkan Billing Account (termasuk kredit workshop DevFest atau GCP Free Trial) ke project Anda:</p>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash"># 1. Tampilkan daftar Billing Account yang tersedia &amp; aktif (OPEN = True)
+gcloud billing accounts list
+
+# 2. Tautkan Billing Account ke project Anda
+#    Ganti &lt;PROJECT_ID&gt; dan &lt;BILLING_ACCOUNT_ID&gt; (format: XXXXXX-XXXXXX-XXXXXX)
+gcloud billing projects link &lt;PROJECT_ID&gt; \
+  --billing-account=&lt;BILLING_ACCOUNT_ID&gt;
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li>Buka <a href="https://console.cloud.google.com/billing/projects" target="_blank">Google Cloud Console → Billing → Projects</a> lalu pastikan Anda berada di tab <strong>Your projects</strong>.</li>
+<li>Cari baris project Anda → klik ikon titik tiga (<strong>⋮</strong>) pada kolom <strong>Actions</strong> → pilih <strong>Change billing</strong>.</li>
+<li>Pilih <strong>Billing account</strong> yang ingin digunakan (misal kredit workshop/trial aktif) → klik <strong>Set account</strong>.</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman Billing Account Management (Your Projects) di Google Cloud Console" src="img/53f6be21ca04a61b.png"></p>
+<aside class="special"><p><strong>Belum Punya Billing Account?</strong> Anda tetap dapat melewati Langkah c ini untuk menyelesaikan praktikum lokal (Langkah 1–8) menggunakan API yang tidak membutuhkan billing container. Penautan Billing Account baru wajib dilakukan sebelum men-deploy ke Google Cloud Run pada Langkah 9.</p>
+</aside>
+<aside class="special"><p><strong>Informasi Kredensial ADC:</strong> Jika terminal memunculkan pesan <code>WARNING: Your active project does not match the quota project in your local Application Default Credentials file</code>, abaikan pesan tersebut. NusaRoute AI menggunakan kredensial Service Account terisolasi dan Gemini API Key langsung, sehingga perintah <code>set-quota-project</code> tidak diperlukan.</p>
+</aside>
+<aside class="special"><p><strong>Opsi Wizard Setup Otomatis:</strong> Sebagai alternatif eksekusi perintah gcloud secara manual, jalankan <code>npm run setup</code> setelah kloning repositori. Skrip interaktif akan mendeteksi akun dan mengonfigurasi project Google Cloud secara terpadu.</p>
+</aside>
+<h3 is-upgraded>C. Buka Proyek dengan Google Antigravity IDE</h3>
+<p>Buka <strong>Google Antigravity IDE</strong> (atau VS Code). Antigravity IDE sangat direkomendasikan untuk workshop ini karena dilengkapi asisten AI terintegrasi yang memahami konteks repositori, struktur proyek frontend &amp; backend, serta mampu membantu verifikasi kode secara langsung.</p>
+<h2 is-upgraded>3. Clone Repositori Starter</h2>
+<p>Buka terminal di Antigravity IDE dan clone repositori resmi workshop:</p>
+<pre><code language="language-bash" class="language-bash">git clone https://github.com/putuwahyu29/nusaroute-ai.git
+cd nusaroute-ai
+</code></pre>
+<h2 is-upgraded>4. Instal Seluruh Dependensi Proyek (Frontend &amp; Backend)</h2>
+<p>Proyek ini menggabungkan backend TypeScript Express 5 dan frontend React 18/Vite dalam satu repositori. Jalankan satu perintah berikut di root untuk menginstal semua dependensi sekaligus:</p>
+<pre><code language="language-bash" class="language-bash">npm run install:all
+</code></pre>
+<h2 is-upgraded>5. Konfigurasi File Environment</h2>
+<p>Salin template konfigurasi lingkungan untuk backend dan frontend:</p>
+<pre><code language="language-bash" class="language-bash"># Salin konfigurasi backend
+cp backend/.env.example backend/.env
+
+# Salin konfigurasi frontend (Vite membaca .env.local atau .env)
+cp frontend/.env.example frontend/.env.local
+</code></pre>
+<aside class="special"><p><strong>Mode Simulasi Lokal (Mock Mode):</strong> Untuk pengujian offline tanpa API key eksternal, atur <code>USE_MOCK_AI=true</code> di <code>backend/.env</code>. Seluruh fungsi backend, algoritma rute, dan antarmuka web tetap beroperasi penuh secara lokal.</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Konfigurasi Cloud Firestore &amp; Ekosistem Google Cloud" duration="15">
+        <p>Pada bagian ini, kita akan mengatur database real-time <strong>Cloud Firestore</strong> dan mengaktifkan seluruh API ekosistem Google Cloud.</p>
+<h2 is-upgraded>Pilihan A: Setup Otomatis dengan Bantuan AI (Google Antigravity IDE)</h2>
+<p>Jika Anda membuka proyek ini menggunakan <strong>Google Antigravity IDE</strong> (atau editor berkemampuan AI), repositori ini telah dilengkapi panduan <code>AGENTS.md</code>. Anda tidak perlu menjalankan perintah konfigurasi satu per satu secara manual.</p>
+<p>Buka panel <strong>Chat Antigravity</strong> dan ketik instruksi berikut:</p>
+<p><em>&#34;Baca panduan AGENTS.md, lalu bantu setup Google Cloud project untuk NusaRoute AI. Aktifkan API yang dibutuhkan, siapkan service account Firestore, dan buatkan file backend/.env serta frontend/.env.local.&#34;</em></p>
+<p><strong>Catatan:</strong> Saat proses berjalan, asisten AI Antigravity akan menanyakan <strong>Gemini API Key</strong> dari Google AI Studio dan <strong>Google Maps API Key</strong> Anda untuk disimpan ke dalam berkas konfigurasi.</p>
+<p>AI Agent di Antigravity IDE akan secara otomatis:</p>
+<ol type="1">
+<li>Memeriksa status login akun Anda melalui <code>gcloud auth list</code>.</li>
+<li>Mendeteksi project yang ada atau membuatkan project baru.</li>
+<li>Mengaktifkan seluruh API layanan yang dibutuhkan (<code>firestore</code>, <code>identitytoolkit</code>, <code>generativelanguage</code>, <code>maps-backend</code>, <code>routes</code>, <code>run</code>).</li>
+<li>Menyiapkan kredensial Service Account dan mengisi file <code>.env</code> di backend maupun frontend.</li>
+<li>Menjalankan <code>npm run validate</code> untuk memastikan semua konfigurasi siap digunakan.</li>
+</ol>
+<h2 is-upgraded>Pilihan B: Setup Terpandu Melalui Terminal (Skrip Interaktif)</h2>
+<p>Jika Anda menggunakan editor teks biasa (seperti VS Code standar) atau terminal, gunakan skrip interaktif yang telah kami sediakan:</p>
+<ol type="1">
+<li>Pastikan Anda sudah login ke Google Cloud CLI: <pre><code language="language-bash" class="language-bash">gcloud auth login
+</code></pre>
+</li>
+<li>Jalankan skrip interaktif di root repositori: <pre><code language="language-bash" class="language-bash">npm run setup
+</code></pre>
+Skrip <code>setup-config.js</code> akan secara otomatis menanyakan project dan Billing Account Anda, mengaktifkan API yang dibutuhkan, membuat Service Account dan kunci akses, mengonfigurasi Firebase Web App dan Login Google, serta mengisi file <code>.env</code> di backend dan frontend (<code>frontend/.env.local</code>).</li>
+<li>Jalankan verifikasi: <pre><code language="language-bash" class="language-bash">npm run validate
+</code></pre>
+</li>
+</ol>
+<h2 is-upgraded>Pilihan C: Setup Manual Langkah demi Langkah</h2>
+<p>Setiap langkah konfigurasi infrastruktur di bawah ini menyediakan dua cara: <strong>Melalui Terminal (CLI)</strong> untuk proses yang cepat dan otomatis, atau <strong>Melalui Konsol Web (GUI)</strong> langsung di browser.</p>
+<h3 is-upgraded>1. Mengaktifkan API Layanan Google Cloud</h3>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><ul>
+<li><strong>Dengan Billing Account </strong><em>(lengkap termasuk Cloud Run)</em>: <pre><code language="language-bash" class="language-bash">gcloud services enable \
+  firestore.googleapis.com \
+  identitytoolkit.googleapis.com \
+  run.googleapis.com \
+  cloudbuild.googleapis.com \
+  cloudscheduler.googleapis.com \
+  generativelanguage.googleapis.com \
+  maps-backend.googleapis.com \
+  routes.googleapis.com \
+  directions-backend.googleapis.com \
+  apikeys.googleapis.com
+</code></pre>
+</li>
+<li><strong>Tanpa Billing Account </strong><em>(mode lokal Langkah 1–8)</em>: <pre><code language="language-bash" class="language-bash">gcloud services enable \
+  firestore.googleapis.com \
+  identitytoolkit.googleapis.com \
+  generativelanguage.googleapis.com \
+  maps-backend.googleapis.com \
+  routes.googleapis.com \
+  directions-backend.googleapis.com \
+  apikeys.googleapis.com
+</code></pre>
+</li>
+</ul>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong> Buka <a href="https://console.cloud.google.com/apis/library" target="_blank">APIs &amp; Services → Library</a>, cari lalu klik <strong>Enable</strong> untuk: <strong>Google Cloud Firestore API</strong>, <strong>Identity Toolkit API </strong><em>(Firebase Auth / Login Google)</em>, <strong>Gemini API </strong><em>(Generative Language API)</em>, <strong>Maps JavaScript API</strong>, <strong>Routes API</strong>, <strong>Directions API </strong><em>(opsional sebagai fallback)</em>, <strong>API Keys API</strong>, serta <strong>Cloud Run Admin API</strong>, <strong>Cloud Build API</strong>, dan <strong>Cloud Scheduler API </strong><em>(jika billing aktif)</em>.</li>
+</ul>
+<p class="image-container"><img alt="Google Cloud API Library" src="img/c00afe9075a265ee.png"></p>
+<aside class="special"><p><strong>Penanganan Error Billing Account:</strong> Jika muncul <code>FAILED_PRECONDITION: Billing account not found</code> saat mengaktifkan <code>run.googleapis.com</code>, gunakan perintah tanpa Cloud Run. Layanan Cloud Run baru diperlukan pada Langkah 9 (Deployment Produksi).</p>
+</aside>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Identifier API</p>
+</td><td colspan="1" rowspan="1"><p>Nama Layanan (Web Console)</p>
+</td><td colspan="1" rowspan="1"><p>Kategori</p>
+</td><td colspan="1" rowspan="1"><p>Peran &amp; Kegunaan di NusaRoute AI</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>firestore.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>Google Cloud Firestore API</p>
+</td><td colspan="1" rowspan="1"><p><strong>Wajib</strong></p>
+</td><td colspan="1" rowspan="1"><p>Database NoSQL dokumen real-time (<code>asia-southeast2</code> Jakarta) untuk menyimpan data <code>users</code>, <code>deliveries</code>, <code>incident_reports</code>, <code>traffic_zones</code>, <code>agent_decisions</code>, dan <code>system_state</code> melalui Firebase Admin SDK.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>identitytoolkit.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>Identity Toolkit API</p>
+</td><td colspan="1" rowspan="1"><p><strong>Wajib (Auth)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Fondasi backend Firebase Authentication untuk provider <strong>Masuk dengan Google</strong> serta verifikasi token JWT pengguna secara server-side (<code>verifyIdToken</code>).</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>generativelanguage.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><strong>Gemini API </strong><em>(Generative Language API)</em></p>
+</td><td colspan="1" rowspan="1"><p><strong>Wajib</strong></p>
+</td><td colspan="1" rowspan="1"><p>Endpoint inferensi kecerdasan buatan <strong>Gemini 3.8 Flash</strong> yang menganalisis foto kemacetan dan pesan suara kurir secara langsung menjadi data JSON terstruktur (<em>Structured Outputs</em>).</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>maps-backend.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>Maps JavaScript API</p>
+</td><td colspan="1" rowspan="1"><p><strong>Wajib</strong></p>
+</td><td colspan="1" rowspan="1"><p>Menampilkan peta interaktif pada browser, penanda armada kurir, poligon zona kemacetan/banjir, dan visualisasi jalur pengantaran.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>routes.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><strong>Routes API</strong></p>
+</td><td colspan="1" rowspan="1"><p><strong>Wajib</strong></p>
+</td><td colspan="1" rowspan="1"><p>Layanan rute Google Maps Platform modern untuk menghitung navigasi armada presisi, perbandingan rute alternatif hijau/merah, estimasi waktu tempuh (ETA), dan matriks jarak.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>directions-backend.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>Directions API</p>
+</td><td colspan="1" rowspan="1"><p><em>Opsional</em></p>
+</td><td colspan="1" rowspan="1"><p>Endpoint kalkulasi rute cadangan (<em>fallback</em>) jika kuota Routes API mencapai batas.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>apikeys.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>API Keys API</p>
+</td><td colspan="1" rowspan="1"><p><strong>Wajib (CLI)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Mengotomatisasi pembuatan, inspeksi, dan pembatasan (<em>API Key restriction</em>) kredensial Maps &amp; Gemini via skrip atau perintah terminal <code>gcloud services api-keys</code>.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>run.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>Cloud Run Admin API</p>
+</td><td colspan="1" rowspan="1"><p><strong>Produksi</strong></p>
+</td><td colspan="1" rowspan="1"><p>Menjalankan server backend Express secara serverless di Jakarta dengan kapabilitas <em>scale-to-zero</em> (biaya $0 saat idle) dan auto-scaling instan saat menerima trafik.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>cloudbuild.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>Cloud Build API</p>
+</td><td colspan="1" rowspan="1"><p><strong>Produksi</strong></p>
+</td><td colspan="1" rowspan="1"><p>Mesin pembuat kontainer serverless yang membangun image Docker backend langsung dari source code lokal (<code>--source .</code>) sebelum diluncurkan ke Cloud Run.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>cloudscheduler.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>Cloud Scheduler API</p>
+</td><td colspan="1" rowspan="1"><p><strong>Produksi</strong></p>
+</td><td colspan="1" rowspan="1"><p>Layanan cron job serverless terkelola yang secara berkala (tiap 3 menit) memicu siklus agen otonom (<code>POST /api/agent/tick</code>), mencegah duplikasi perulangan (<em>loop</em>) pada arsitektur multi-instance.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>secretmanager.googleapis.com</code></strong></p>
+</td><td colspan="1" rowspan="1"><p>Secret Manager API</p>
+</td><td colspan="1" rowspan="1"><p><em>Opsional</em></p>
+</td><td colspan="1" rowspan="1"><p>Penyimpanan rahasia dan kunci privat terenkripsi tingkat enterprise (opsional jika menyimpan variabel lingkungan di luar berkas <code>.env</code>).</p>
+</td></tr>
+</table>
+<h3 is-upgraded>2. Membuat Database Cloud Firestore (Region Jakarta)</h3>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash">gcloud firestore databases create \
+  --database=&#34;(default)&#34; \
+  --location=asia-southeast2 \
+  --type=firestore-native
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li>Buka <a href="https://console.cloud.google.com/firestore" target="_blank">Google Cloud Console → Firestore</a> → klik <strong>Create a Firestore database</strong>.</li>
+<li>Atur <strong>Database ID </strong><code>(default)</code>, <strong>Edition </strong><code>Standard Edition</code>, <strong>Security rules </strong><code>Open</code> (atau <code>Restrictive</code>), dan <strong>Location </strong><code>asia-southeast2 (Jakarta)</code> → klik <strong>Create Database</strong>.</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman Cloud Firestore Databases di GCP Console" src="img/26e7953623ba396.png"></p>
+<h3 is-upgraded>3. Membuat Service Account Key untuk Backend Express</h3>
+<ul>
+<li><strong>Opsi Terminal (CLI) </strong><em>(ganti </em><em><code>[PROJECT_ID]</code></em><em> dengan ID project Google Cloud Anda)</em>:<pre><code language="language-bash" class="language-bash"># 1. Buat Service Account
+gcloud iam service-accounts create nusaroute-backend-sa \
+  --display-name=&#34;NusaRoute Backend SA&#34;
+
+# 2. Berikan role Cloud Datastore User (Firestore) &amp; Firebase Auth Viewer
+gcloud projects add-iam-policy-binding &lt;PROJECT_ID&gt; \
+  --member=&#34;serviceAccount:nusaroute-backend-sa@&lt;PROJECT_ID&gt;.iam.gserviceaccount.com&#34; \
+  --role=&#34;roles/datastore.user&#34;
+
+gcloud projects add-iam-policy-binding &lt;PROJECT_ID&gt; \
+  --member=&#34;serviceAccount:nusaroute-backend-sa@&lt;PROJECT_ID&gt;.iam.gserviceaccount.com&#34; \
+  --role=&#34;roles/firebaseauth.viewer&#34;
+
+# 3. Unduh file kunci JSON (tunggu ~5 detik jika baru saja membuat SA agar IAM tersinkron)
+gcloud iam service-accounts keys create backend/service-account.json \
+  --iam-account=&#34;nusaroute-backend-sa@&lt;PROJECT_ID&gt;.iam.gserviceaccount.com&#34;
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li>Buka <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank">IAM &amp; Admin → Service Accounts</a> → klik <strong>+ Create service account</strong>.</li>
+<li>Isi nama <code>nusaroute-backend-sa</code> → berikan role <strong>Cloud Datastore User</strong> → klik <strong>Done</strong>.</li>
+<li>Klik akun tersebut → tab <strong>Keys</strong> → <strong>Add Key</strong> → <strong>Create new key</strong> → pilih <strong>JSON</strong> → <strong>Create</strong>.</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman IAM &amp; Admin Service Accounts di GCP Console" src="img/f150909d658933bc.png"></p>
+<ul>
+<li><strong>Konfigurasi </strong><strong><code>backend/.env</code></strong> <em>(salin nilai dari file JSON, pastikan file JSON tidak di-commit ke Git)</em>: <pre><code language="language-env" class="language-env">FIREBASE_PROJECT_ID=id-project-anda
+FIREBASE_CLIENT_EMAIL=nusaroute-backend-sa@id-project-anda.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY=&#34;-----BEGIN PRIVATE KEY-----\nMIIEvgIB...-----END PRIVATE KEY-----\n&#34;
+</code></pre>
+</li>
+</ul>
+<h3 is-upgraded>4. Membuat Kunci Gemini API</h3>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash">gcloud services api-keys create \
+  --display-name=&#34;NusaRoute Gemini Key&#34; \
+  --api-target=service=generativelanguage.googleapis.com \
+  --format=&#34;value(response.keyString)&#34;
+</code></pre>
+</li>
+</ul>
+<p><strong>Catatan:</strong> Jika kebijakan organisasi/project mewajibkan Authorization Key terikat Service Account, tambahkan <code>--service-account="nusaroute-backend-sa@&lt;PROJECT_ID&gt;.iam.gserviceaccount.com"</code> dengan perintah <code>gcloud beta services api-keys create</code>.</p>
+<ul>
+<li><strong>Opsi Web Console (GUI — Google AI Studio):</strong><ol type="1">
+<li>Buka <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> → klik <strong>Create API key</strong>.</li>
+<li>Pilih project Google Cloud Anda lalu salin kunci yang terbentuk (<code>AIzaSy...</code>).</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman API Keys di Google AI Studio" src="img/2ccd1efc199d0bb8.png"></p>
+<ul>
+<li><strong>Konfigurasi </strong><strong><code>backend/.env</code></strong><strong>:</strong><pre><code language="language-env" class="language-env">GEMINI_API_KEY=AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+USE_MOCK_AI=false
+GEMINI_MODEL=gemini-3.8-flash
+</code></pre>
+</li>
+</ul>
+<h3 is-upgraded>5. Membuat Kunci Google Maps API</h3>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash">gcloud services api-keys create \
+  --display-name=&#34;NusaRoute Maps Key&#34; \
+  --api-target=service=maps-backend.googleapis.com \
+  --api-target=service=routes.googleapis.com \
+  --api-target=service=directions-backend.googleapis.com \
+  --format=&#34;value(response.keyString)&#34;
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li>Buka <a href="https://console.cloud.google.com/apis/credentials" target="_blank">APIs &amp; Services → Credentials</a> → <strong>+ Create credentials</strong> → <strong>API key</strong>.</li>
+<li>Pada <strong>API restrictions</strong>, pilih <strong>Restrict key</strong> → centang <strong>Maps JavaScript API</strong>, <strong>Routes API</strong>, serta <strong>Directions API </strong><em>(opsional)</em> → klik <strong>Save/Create</strong> → salin kunci (<code>AIzaSy...</code>).</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman APIs &amp; Services Credentials di GCP Console" src="img/2f05efe0c768f11c.png"></p>
+<ul>
+<li><strong>Konfigurasi </strong><strong><code>.env</code></strong><strong>:</strong><ul>
+<li><code>frontend/.env.local</code> <em>(Wajib — digunakan </em><em><code>GoogleMap.tsx</code></em><em> untuk rendering peta &amp; Routes API di browser)</em>: <code>VITE_GOOGLE_MAPS_API_KEY=AIzaSy...</code></li>
+<li><code>backend/.env</code> <em>(Opsional — cadangan untuk integrasi Maps sisi server)</em>: <code>GOOGLE_MAPS_API_KEY=AIzaSy...</code></li>
+</ul>
+</li>
+</ul>
+<h3 is-upgraded>6. Mendaftarkan Web App Firebase (Client SDK)</h3>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash"># 1. Login Firebase CLI (tanpa instalasi global via npx)
+npx firebase-tools login
+
+# 2. Aktifkan layanan Firebase pada GCP Project Anda
+npx firebase-tools projects:addfirebase &lt;PROJECT_ID&gt;
+
+# 3. Daftarkan aplikasi Web baru
+npx firebase-tools apps:create WEB nusaroute-web --project &lt;PROJECT_ID&gt;
+
+# 4. Cetak objek konfigurasi SDK (apiKey, authDomain, appId, dll.)
+npx firebase-tools apps:sdkconfig WEB --project &lt;PROJECT_ID&gt;
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li>Buka <a href="https://console.firebase.google.com/" target="_blank">console.firebase.google.com</a> → pilih project GCP Anda (atau klik <strong>Add project</strong> untuk mengimpor project GCP yang ada).</li>
+<li>Pada <strong>Project Overview</strong>, klik <strong>+ Add app</strong> lalu pilih platform <strong>Web</strong> → beri nama <code>nusaroute-web</code> → klik <strong>Register app</strong> → salin nilai <code>firebaseConfig</code>.</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman Project Overview di Firebase Console" src="img/20d095722fce0728.png"></p>
+<ul>
+<li><strong>Konfigurasi </strong><strong><code>frontend/.env.local</code></strong><strong>:</strong><pre><code language="language-env" class="language-env">VITE_BACKEND_URL=http://localhost:3000
+VITE_FIREBASE_API_KEY=AIzaSy...
+VITE_FIREBASE_AUTH_DOMAIN=project-id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=project-id
+VITE_FIREBASE_STORAGE_BUCKET=project-id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=1234567890
+VITE_FIREBASE_APP_ID=1:1234567890:web:abcdef...
+VITE_GOOGLE_MAPS_API_KEY=AIzaSy...
+</code></pre>
+</li>
+</ul>
+<aside class="special"><p><strong>Prioritas File Environment Vite:</strong> Vite selalu memprioritaskan <code>frontend/.env.local</code> di atas <code>frontend/.env</code>. Pastikan tidak ada nilai placeholder dummy yang tertinggal di salah satunya; skrip <code>npm run setup</code> dan <code>npm run validate</code> otomatis menjaga keduanya sinkron dan bebas nilai placeholder.</p>
+</aside>
+<h3 is-upgraded>7. Aktivasi Login Google (Firebase Authentication) &amp; Whitelist Akun</h3>
+<p>NusaRoute AI menyediakan <strong>2 opsi login</strong> — <strong>Username/Email + Password</strong> (berbasis <code>scrypt</code>) dan <strong>Masuk dengan Google (Firebase Auth)</strong>. Demi keamanan produksi, kebijakan default aplikasi adalah <code>GOOGLE_AUTO_REGISTER=false</code>: <strong>Login Google TIDAK membuat akun baru secara otomatis</strong>. Hanya alamat email Google yang sudah terdaftar di koleksi Firestore <code>users</code> yang diizinkan masuk (email asing otomatis ditolak dengan <code>403 Forbidden</code>).</p>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><ol type="1">
+<li>Tambahkan blok <code>auth</code> pada <code>firebase.json</code> di root repositori (atau jalankan <code>npm run setup</code> yang menulis blok ini secara otomatis): <pre><code language="language-json" class="language-json">&#34;auth&#34;: {
+  &#34;providers&#34;: {
+    &#34;emailPassword&#34;: true,
+    &#34;googleSignIn&#34;: {
+      &#34;oAuthBrandDisplayName&#34;: &#34;NusaRoute AI&#34;,
+      &#34;supportEmail&#34;: &#34;email-anda@gmail.com&#34;,
+      &#34;authorizedRedirectUris&#34;: [
+        &#34;https://&lt;PROJECT_ID&gt;.firebaseapp.com/__/auth/handler&#34;,
+        &#34;http://localhost:5173&#34;
+      ]
+    }
+  }
+}
+</code></pre>
+</li>
+<li>Deploy konfigurasi provider Authentication ke Firebase via CLI, lalu daftarkan email Google petugas ke koleksi Firestore <code>users</code> memakai <strong><code>npm run user:add</code></strong>: <pre><code language="language-bash" class="language-bash"># 1. Aktifkan Google Sign-In di Firebase Auth via CLI
+npx firebase-tools deploy --only auth --project &lt;PROJECT_ID&gt;
+
+# 2. Daftarkan email Google sebagai Dispatcher (Google-only, tanpa password lokal)
+npm run user:add -- --email nama.admin@gmail.com --name &#34;Nama Admin&#34; --role dispatcher
+
+# 3. Daftarkan email Google sebagai Kurir (Dual Login: Google + Username/Password)
+npm run user:add -- --email kurir.sby@gmail.com --name &#34;Budi Santoso&#34; --role courier --username budi --password &#34;SandiKuat2026!&#34;
+</code></pre>
+</li>
+</ol>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li>Buka <a href="https://console.firebase.google.com/project/_/authentication/providers" target="_blank">Firebase Console → Authentication → Sign-in method</a> → klik <strong>Add new provider</strong> → pilih <strong>Google</strong> → aktifkan (<em>Enable</em>), isi <em>Support email</em>, lalu klik <strong>Save</strong>.</li>
+<li>Pada tab <strong>Settings → Authorized domains</strong>, pastikan <code>localhost</code> (dan domain produksi <code>*.web.app</code> / custom domain Anda) sudah terdaftar agar popup Login Google berjalan tanpa error <code>auth/unauthorized-domain</code>.</li>
+<li>Tambahkan email petugas ke koleksi <code>users</code> melalui endpoint admin <code>POST /api/users</code> (dengan Bearer JWT Dispatcher / <code>X-API-Key</code>) atau via <code>npm run user:add</code>.</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman Firebase Authentication Sign-in Method di Firebase Console" src="img/36d7d2c738582079.png"></p>
+<h3 is-upgraded>8. Pengisian &amp; Penyegaran Data Demo Database (Seed &amp; Reset)</h3>
+<p>Untuk keperluan pengujian mandiri dan demonstrasi, NusaRoute AI menyediakan dua mekanisme pengelolaan basis data:</p>
+<ol type="1">
+<li><strong>Inisialisasi Aman (Seed / Idempotent)</strong>: Saat backend berjalan (<code>ENABLE_AUTO_SEED=true</code>), fungsi <code>seedDatabase()</code> hanya mengisi data jika koleksi masih kosong, tanpa menimpa data yang sedang aktif:<ul>
+<li>Koleksi <code>users</code>: 4 akun awal dengan kata sandi terenkripsi aman (<code>budi</code>, <code>agus</code>, <code>eko</code>, <code>dispatcher</code>).</li>
+<li>Koleksi <code>deliveries</code>: 15 titik pengiriman awal di Surabaya (<code>DEL-001</code> s.d. <code>DEL-015</code>).</li>
+<li>Koleksi <code>traffic_zones</code>: 10 zona rawan kemacetan awal.</li>
+</ul>
+</li>
+<li><strong>Penyegaran Total Data Demo (Reset Database)</strong>: Setelah simulasi pengiriman berjalan (paket berstatus <code>delivered</code> atau teralokasi ke kurir), Anda dapat mengembalikan seluruh data demo ke kondisi awal kapan pun:<ul>
+<li>Mengembalikan seluruh 15 paket pengiriman ke status <code>unassigned</code>.</li>
+<li>Menghapus paket pengiriman kustom tambahan.</li>
+<li>Mengembalikan 10 zona rawan macet standar Surabaya.</li>
+<li>Memastikan akun pengguna demo aktif dengan kata sandi default (<code>nusaroute2026</code>).</li>
+<li>Menghapus riwayat laporan insiden uji coba dan keputusan agen sementara.</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash"># 1. Inisialisasi aman koleksi yang kosong (tanpa menimpa data aktif)
+npm run db:seed
+
+# 2. Reset / pulihkan seluruh data demo ke kondisi awal (dengan konfirmasi)
+npm run db:reset
+
+# (Tambahkan flag -f untuk melewati konfirmasi interaktif: npm run db:reset -- -f)
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li><strong>Dasbor Dispatcher</strong>: Buka dasbor di <code>http://localhost:5173</code> (atau domain web produksi Anda), masuk sebagai <code>dispatcher</code>, lalu klik tombol <strong>Reset Data Demo</strong> pada panel aksi kiri untuk menyegarkan data seketika.</li>
+<li><strong>Firestore Studio</strong>: Buka <a href="https://console.cloud.google.com/firestore" target="_blank">Google Cloud Console → Firestore Studio</a> atau <a href="https://console.firebase.google.com/" target="_blank">Firebase Console → Firestore Database</a> untuk melihat dan memverifikasi dokumen secara visual.</li>
+</ol>
+</li>
+</ul>
+<h2 is-upgraded>Contoh Lengkap Berkas Konfigurasi Hasil Setup Manual</h2>
+<p>Setelah menyelesaikan seluruh langkah di atas, pastikan kedua file konfigurasi Anda memiliki struktur lengkap seperti berikut:</p>
+<h3 is-upgraded>A. File <code>backend/.env</code></h3>
+<pre><code language="language-env" class="language-env"># Server, CORS &amp; Production Security
+PORT=3000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173
+API_KEY=ganti_dengan_random_api_key_cloud_scheduler
+JWT_SECRET=ganti_dengan_random_jwt_secret_32_karakter
+ENABLE_AUTO_SEED=true
+ENABLE_AGENT_LOOP=true
+GOOGLE_AUTO_REGISTER=false
+
+# Wilayah Operasi &amp; Koordinat Lokasi (Dinamis — dapat disesuaikan per kota)
+OPERATION_CITY=Surabaya
+DEFAULT_ORIGIN_LAT=-7.2652
+DEFAULT_ORIGIN_LNG=112.7523
+WEATHER_TIMEZONE=Asia/Jakarta
+
+# Google Gemini AI
+GEMINI_API_KEY=AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+USE_MOCK_AI=false
+GEMINI_MODEL=gemini-3.8-flash
+
+# Firebase Admin SDK (Service Account)
+FIREBASE_PROJECT_ID=nusaroute-sby-2026
+FIREBASE_CLIENT_EMAIL=nusaroute-backend-sa@nusaroute-sby-2026.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY=&#34;-----BEGIN PRIVATE KEY-----\nMIIEvgIB...-----END PRIVATE KEY-----\n&#34;
+
+# Google Maps API
+GOOGLE_MAPS_API_KEY=AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</code></pre>
+<aside class="special"><p><strong>Cara Menghasilkan Nilai Acak Aman untuk API_KEY dan JWT_SECRET:</strong></p>
+<p>Nilai <code>API_KEY</code> (untuk otorisasi pemicu Cloud Scheduler) dan <code>JWT_SECRET</code> (untuk enkripsi token login pengguna) adalah string rahasia buatan Anda sendiri (minimal 32 karakter). Anda dapat menghasilkannya secara instan dengan menjalankan perintah bawaan Node.js di terminal:</p>
+<pre><code>node -e &#34;console.log(require(&#39;crypto&#39;).randomBytes(32).toString(&#39;hex&#39;))&#34;</code></pre>
+<p>Jalankan perintah tersebut dua kali: hasil pertama disalin ke <code>API_KEY</code>, dan hasil kedua disalin ke <code>JWT_SECRET</code>.</p>
+</aside>
+<h3 is-upgraded>B. File <code>frontend/.env.local</code></h3>
+<pre><code language="language-env" class="language-env"># Backend API URL
+VITE_BACKEND_URL=http://localhost:3000
+
+# Google Maps API
+VITE_GOOGLE_MAPS_API_KEY=AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Firebase Client Web SDK
+VITE_FIREBASE_API_KEY=AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+VITE_FIREBASE_AUTH_DOMAIN=nusaroute-sby-2026.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=nusaroute-sby-2026
+VITE_FIREBASE_STORAGE_BUCKET=nusaroute-sby-2026.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789012
+VITE_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
+</code></pre>
+<h2 is-upgraded>Matriks Koordinasi Kunci API &amp; Konfigurasi (.env)</h2>
+<p>Agar frontend dan backend dapat saling berkomunikasi serta terhubung ke layanan Google Cloud, berikut adalah panduan pemetaan variabel yang perlu dikoordinasikan:</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Variabel</p>
+</td><td colspan="1" rowspan="1"><p>Berkas Target</p>
+</td><td colspan="1" rowspan="1"><p>Fungsi &amp; Penjelasan</p>
+</td><td colspan="1" rowspan="1"><p>Di Mana Mendapatkannya?</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>GEMINI_API_KEY</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>backend/.env</code></p>
+</td><td colspan="1" rowspan="1"><p>Kunci akses model Gemini 3.8 Flash untuk menganalisis foto dan rekaman suara kurir. <em>(Tersimpan aman di backend, tidak pernah terekspos ke browser)</em>.</p>
+</td><td colspan="1" rowspan="1"><p><a href="https://aistudio.google.com/" target="_blank">aistudio.google.com</a> → <strong>Get API Key</strong></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>USE_MOCK_AI</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>backend/.env</code></p>
+</td><td colspan="1" rowspan="1"><p>Saklar mode AI (<code>false</code> untuk analisis langsung Gemini 3.8 Flash, <code>true</code> untuk mode simulasi offline tanpa kuota API).</p>
+</td><td colspan="1" rowspan="1"><p>Setel <code>false</code> saat mengisi <code>GEMINI_API_KEY</code> asli.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>VITE_GOOGLE_MAPS_API_KEY</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>frontend/.env.local</code></p>
+</td><td colspan="1" rowspan="1"><p>Menampilkan peta interaktif dan petunjuk arah navigasi (termasuk rute pengalihan hijau) langsung di <code>GoogleMap.tsx</code>.</p>
+</td><td colspan="1" rowspan="1"><p>Google Cloud Console → Credentials atau <code>gcloud services api-keys create</code>.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>GOOGLE_MAPS_API_KEY</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>backend/.env</code></p>
+</td><td colspan="1" rowspan="1"><p><em>(Opsional)</em> Variabel cadangan di backend jika ingin memanggil Maps dari sisi server.</p>
+</td><td colspan="1" rowspan="1"><p>Kunci yang sama dengan Maps API di atas.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>VITE_BACKEND_URL</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>frontend/.env.local</code></p>
+</td><td colspan="1" rowspan="1"><p>Alamat server backend Express (default lokal: <code>http://localhost:3000</code>).</p>
+</td><td colspan="1" rowspan="1"><p>Port backend yang aktif di mesin lokal atau Cloud Run URL.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>CORS_ORIGIN</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>backend/.env</code></p>
+</td><td colspan="1" rowspan="1"><p>Daftar alamat frontend yang diizinkan mengakses backend (default: <code>http://localhost:5173</code>).</p>
+</td><td colspan="1" rowspan="1"><p>Port Vite dev server.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>FIREBASE_*</code></strong><strong> (Admin SDK)</strong></p>
+</td><td colspan="1" rowspan="1"><p><code>backend/.env</code></p>
+</td><td colspan="1" rowspan="1"><p>Kredensial Service Account (<code>PROJECT_ID</code>, <code>CLIENT_EMAIL</code>, <code>PRIVATE_KEY</code>) untuk database Firestore &amp; verifikasi token login Google.</p>
+</td><td colspan="1" rowspan="1"><p>Google Cloud Console → IAM &amp; Admin → Service Accounts → Keys (JSON).</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>VITE_FIREBASE_*</code></strong><strong> (Web SDK)</strong></p>
+</td><td colspan="1" rowspan="1"><p><code>frontend/.env.local</code></p>
+</td><td colspan="1" rowspan="1"><p>Kredensial client Firebase Web SDK untuk fitur Masuk dengan Google (Firebase Authentication).</p>
+</td><td colspan="1" rowspan="1"><p>Firebase Console → Project Settings → General → Web Apps.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>JWT_SECRET</code></strong><strong> &amp; </strong><strong><code>API_KEY</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>backend/.env</code></p>
+</td><td colspan="1" rowspan="1"><p>Kunci pengaman token sesi login (<code>JWT_SECRET</code>) dan kunci komunikasi Cloud Scheduler (<code>API_KEY</code>). Dilengkapi pengecekan otomatis saat startup agar keamanan terjamin.</p>
+</td><td colspan="1" rowspan="1"><p>Dibuat otomatis oleh <code>npm run setup</code> atau acak 32 karakter.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>GOOGLE_AUTO_REGISTER</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>backend/.env</code></p>
+</td><td colspan="1" rowspan="1"><p>Kebijakan whitelist Login Google (<code>false</code> = default ketat, tidak membuat akun baru otomatis; daftarkan akun lewat <code>npm run user:add</code>).</p>
+</td><td colspan="1" rowspan="1"><p>Setel <code>false</code> di produksi.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><code>OPERATION_CITY</code></strong> &amp; <strong><code>DEFAULT_ORIGIN_*</code></strong></p>
+</td><td colspan="1" rowspan="1"><p><code>backend/.env</code></p>
+</td><td colspan="1" rowspan="1"><p>Kota operasional, koordinat depot/cuaca Open-Meteo, dan timezone dinamis agar aplikasi dapat dipakai di kota mana pun tanpa ubah kode.</p>
+</td><td colspan="1" rowspan="1"><p>Konfigurasi mandiri sesuai wilayah operasi.</p>
+</td></tr>
+</table>
+<h2 is-upgraded>Verifikasi Konfigurasi (<code>npm run validate</code>)</h2>
+<p>Setelah melengkapi seluruh berkas konfigurasi <code>backend/.env</code> dan <code>frontend/.env.local</code>, jalankan skrip validator dari root direktori proyek untuk memastikan seluruh API Key dan kredensial sudah siap tanpa kesalahan:</p>
+<pre><code language="language-bash" class="language-bash">npm run validate
+</code></pre>
+<p>Skrip validator otomatis memeriksa:</p>
+<ul>
+<li>Format dan integritas kunci Gemini API, Google Maps API, dan Firebase Client SDK.</li>
+<li>Format kunci privat Service Account Firestore (<code>-----BEGIN PRIVATE KEY-----</code>).</li>
+<li>Kekuatan acak rahasia keamanan produksi (<code>JWT_SECRET</code> dan <code>API_KEY</code>).</li>
+<li>Kebijakan keamanan login Google (<code>GOOGLE_AUTO_REGISTER=false</code>).</li>
+</ul>
+<p>Jika seluruh indikator menampilkan status <strong><code>[OK]</code></strong></p>
+<p><strong> hijau</strong>, seluruh konfigurasi telah terverifikasi dan siap digunakan.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Analisis Foto Hambatan Jalan Menjadi Data Terstruktur" duration="15">
+        <p>Pada bagian ini, kita akan mengimplementasikan analisis multimodal menggunakan Google Gen AI SDK (<code>@google/genai</code>) dan model <strong>Google Gemini 3.8 Flash</strong>:</p>
+<h2 is-upgraded>File Target</h2>
+<p>Buka file: <code>backend/src/services/ai-agent.ts</code></p>
+<h2 is-upgraded>1. Memahami Skema Data Keluaran AI (Structured Outputs)</h2>
+<p>Agar format data keluaran dari Gemini selalu konsisten dan siap diproses oleh sistem peta maupun database, kita menggunakan fitur <strong>Structured Outputs</strong> dengan skema JSON berikut:</p>
+<pre><code language="language-typescript" class="language-typescript">import { GoogleGenAI, Type, createPartFromBase64 } from &#34;@google/genai&#34;;
+
+const INCIDENT_RESPONSE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    action: {
+      type: Type.STRING,
+      enum: [&#34;REROUTE&#34;, &#34;WAIT&#34;, &#34;REDIRECT_TO_HUB&#34;, &#34;ESCALATE&#34;],
+      description: &#34;Tindakan operasional yang disarankan untuk kurir&#34;,
+    },
+    severity: {
+      type: Type.STRING,
+      enum: [&#34;low&#34;, &#34;medium&#34;, &#34;high&#34;, &#34;critical&#34;],
+      description: &#34;Tingkat keparahan hambatan dalam format standar&#34;,
+    },
+    severityLabel: {
+      type: Type.STRING,
+      enum: [&#34;Rendah&#34;, &#34;Sedang&#34;, &#34;Tinggi&#34;, &#34;Kritis&#34;],
+      description: &#34;Label tingkat keparahan dalam Bahasa Indonesia&#34;,
+    },
+    incidentType: {
+      type: Type.STRING,
+      enum: [&#34;road_closure&#34;, &#34;traffic_jam&#34;, &#34;flooding&#34;, &#34;accident&#34;, &#34;other&#34;],
+      description: &#34;Klasifikasi jenis hambatan di lapangan&#34;,
+    },
+    incidentTypeLabel: {
+      type: Type.STRING,
+      description: &#34;Deskripsi jenis hambatan&#34;,
+    },
+    analysis: {
+      type: Type.STRING,
+      description: &#34;Analisis situasi lapangan yang objektif dalam Bahasa Indonesia&#34;,
+    },
+    analysisEn: {
+      type: Type.STRING,
+      description: &#34;Detailed analysis in English for operational metadata logging&#34;,
+    },
+    recommendation: {
+      type: Type.STRING,
+      description: &#34;Saran rute atau penanganan taktis kurir dengan nama jalan nyata di Surabaya&#34;,
+    },
+    recommendationEn: {
+      type: Type.STRING,
+      description: &#34;Actionable recommendation in English&#34;,
+    },
+    reroutePoints: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: &#34;Daftar nama jalan alternatif di Surabaya untuk bypass hambatan&#34;,
+    },
+    estimatedDelay: {
+      type: Type.INTEGER,
+      description: &#34;Estimasi keterlambatan dalam satuan menit&#34;,
+    },
+  },
+  required: [
+    &#34;action&#34;,
+    &#34;severity&#34;,
+    &#34;severityLabel&#34;,
+    &#34;incidentType&#34;,
+    &#34;incidentTypeLabel&#34;,
+    &#34;analysis&#34;,
+    &#34;recommendation&#34;,
+    &#34;reroutePoints&#34;,
+    &#34;estimatedDelay&#34;,
+  ],
+};
+</code></pre>
+<h2 is-upgraded>2. Implementasi <code>processIncidentReport</code></h2>
+<p>Fungsi ini memproses buffer foto di RAM tanpa menyimpannya ke disk server:</p>
+<pre><code language="language-typescript" class="language-typescript">export async function processIncidentReport(
+  photoBuffer: Buffer | null = null,
+  audioBuffer: Buffer | null = null,
+  photoMime = &#34;image/jpeg&#34;,
+  audioMime = &#34;audio/webm&#34;
+): Promise&lt;AIDecision&gt; {
+  const client = getGenAIClient();
+  const hasPhoto = Boolean(photoBuffer &amp;&amp; photoBuffer.length &gt; 0);
+  const hasAudio = Boolean(audioBuffer &amp;&amp; audioBuffer.length &gt; 0);
+
+  if (!client) {
+    return generateContextualMock(hasPhoto, hasAudio);
+  }
+
+  const contentParts: any[] = [
+    {
+      text: &#34;LAPORAN KENDALA LOGISTIK KURIR DI KOTA SURABAYA\nInstruksi: Analisis hambatan visual dan/atau audio, tentukan tingkat keparahan, dan berikan rute pengalihan nama jalan Surabaya.&#34;,
+    },
+  ];
+
+  if (hasPhoto &amp;&amp; photoBuffer) {
+    contentParts.push(createPartFromBase64(photoBuffer.toString(&#34;base64&#34;), photoMime));
+  }
+
+  if (hasAudio &amp;&amp; audioBuffer) {
+    contentParts.push(createPartFromBase64(audioBuffer.toString(&#34;base64&#34;), audioMime));
+  }
+
+  const response = await client.models.generateContent({
+    model: APP_CONFIG.geminiModel,
+    contents: [{ role: &#34;user&#34;, parts: contentParts }],
+    config: {
+      systemInstruction: SURABAYA_INCIDENT_SYSTEM_INSTRUCTION,
+      responseMimeType: &#34;application/json&#34;,
+      responseSchema: INCIDENT_RESPONSE_SCHEMA,
+      temperature: 0.1,
+    },
+  });
+
+  const parsedData = JSON.parse(response.text.trim());
+  return normalizeIncidentResult(parsedData, false, APP_CONFIG.geminiModel);
+}
+</code></pre>
+<p><strong>Ketentuan Validasi Bukti Multimodal (Zero-Hallucination Guard):</strong> Kurir <strong>wajib menyertakan minimal 1 bukti lapangan</strong> (Foto atau Voice Note), atau <strong>keduanya sekaligus</strong> untuk akurasi optimal. Jika bukti kosong, backend (<code>POST /api/analyze-incident</code>) otomatis menolak permintaan (<code>HTTP 400: At least one file is required</code>) dan tombol <em>Kirim Laporan Hambatan</em> pada UI terkunci (<em>disabled</em>) demi mencegah halusinasi AI tanpa data faktual.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Pemrosesan Pesan Suara Kurir Menjadi Data Terstruktur" duration="15">
+        <p>Untuk mendukung keselamatan kurir saat berkendara di lapangan, sistem menyediakan fitur pelaporan berbasis pesan suara (<em>voice note</em>). Audio dikirim dan dianalisis langsung di memori server:</p>
+<h2 is-upgraded>Native Audio Processing (Tanpa Pipeline Speech-to-Text Perantara)</h2>
+<p>Gemini 3.8 Flash memproses audio buffer secara native tanpa pipeline konversi teks terpisah (Speech-to-Text):</p>
+<ul>
+<li><strong>End-to-End Multimodal</strong>: Sinyal suara dianalisis langsung oleh model dalam satu pass, memangkas latensi transkripsi.</li>
+<li><strong>Konteks Lokal</strong>: Memahami intonasi, bahasa informal kurir, serta toponimi jalanan lokal Surabaya (Wonokromo, Darmo, Mayjen Sungkono, dll.).</li>
+<li><strong>Structured Output</strong>: Menghasilkan respon JSON terstruktur dengan waktu inferensi &lt;2 detik.</li>
+</ul>
+<h2 is-upgraded>Pengujian di Antarmuka Kurir</h2>
+<ol type="1">
+<li>Buka browser di <code>http://localhost:5173</code>, lalu masuk dengan akun Kurir (username <code>budi</code> dengan kata sandi dev default <code>nusaroute2026</code>, atau klik <strong>Masuk dengan Google</strong> memakai email kurir yang sudah didaftarkan via <code>npm run user:add</code>).</li>
+<li>Ketuk tab <strong>Lapor</strong> pada bilah navigasi bawah (<em>Bottom Navigation</em>). Perhatikan bahwa bagian atas dan navigasi bawah tetap persisten sehingga kurir dapat berpindah antar-tab (<code>Rute</code> ↔ <code>Lapor</code> ↔ <code>Paket</code>) dengan mudah menggunakan satu tangan.</li>
+<li>Pada bagian <strong>Laporan Suara</strong>, ketuk tombol mikrofon (<code>44×44px</code>) untuk merekam pesan suara kendala lapangan (misal: <em>&#34;Lapor posko, Wonokromo macet total ada pohon tumbang di lajur kiri&#34;</em>), lalu ketuk stop untuk menyelesaikan rekaman.</li>
+<li>Klik <strong>Kirim Laporan Hambatan</strong> (tombol otomatis aktif begitu minimal 1 foto atau rekaman suara dilampirkan). Perhatikan bagaimana audio diproses di RAM via <em>Multer MemoryStorage</em> dan Gemini 3.8 Flash menghasilkan JSON instruksi operasional secara instan.</li>
+</ol>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Integrasi Google Maps Platform &amp; Geofencing Radius 200m" duration="15">
+        <p>Keputusan rute dari AI dihubungkan dengan Google Maps Platform untuk menampilkan visualisasi rute alternatif, sekaligus memvalidasi kehadiran fisik kurir (geofencing) sebelum pesanan dapat diselesaikan.</p>
+<h2 is-upgraded>File Target</h2>
+<ol type="1">
+<li><strong>Logika Perhitungan Rute &amp; Pengalihan Jalan</strong>: <code>backend/src/services/traffic-agent.ts</code></li>
+<li><strong>Rendering Navigasi Google Maps</strong>: <code>frontend/src/components/GoogleMap.tsx</code></li>
+<li><strong>Validasi Batas Radius Lokasi Kurir</strong>: <code>frontend/src/pages/CourierPage.tsx</code></li>
+</ol>
+<h2 is-upgraded>1. Deteksi Dini Bahaya &amp; Rekomendasi Rute Alternatif (Backend)</h2>
+<p>Pada <code>backend/src/services/traffic-agent.ts</code>, fungsi <code>proactiveReroute</code> memindai setiap paket yang berpotensi melintasi zona kritis kemacetan atau banjir:</p>
+<pre><code language="language-typescript" class="language-typescript">export function proactiveReroute(
+  deliveries: Delivery[],
+  trafficZones: TrafficZone[]
+): Array&lt;{
+  delivery: Delivery;
+  threatZone: TrafficZone;
+  suggestedAction: &#34;REROUTE&#34; | &#34;REDIRECT_TO_HUB&#34;;
+  message: string;
+}&gt; {
+  const criticalZones = trafficZones.filter((z) =&gt; z.level === &#34;high&#34; || z.level === &#34;critical&#34;);
+  const alerts: Array&lt;{
+    delivery: Delivery;
+    threatZone: TrafficZone;
+    suggestedAction: &#34;REROUTE&#34; | &#34;REDIRECT_TO_HUB&#34;;
+    message: string;
+  }&gt; = [];
+
+  for (const delivery of deliveries) {
+    if (delivery.status === &#34;delivered&#34; || !delivery.lat || !delivery.lng) continue;
+
+    for (const zone of criticalZones) {
+      const dist = haversineKm(delivery.lat, delivery.lng, zone.lat, zone.lng);
+      if (dist != null &amp;&amp; dist &lt;= zone.radius) {
+        alerts.push({
+          delivery,
+          threatZone: zone,
+          suggestedAction: zone.level === &#34;critical&#34; ? &#34;REDIRECT_TO_HUB&#34; : &#34;REROUTE&#34;,
+          message: `Pengiriman ke ${delivery.recipient} terdampak ${zone.name} (${zone.level === &#34;critical&#34; ? &#34;Macet Total&#34; : &#34;Padat&#34;}). ${zone.reason || &#34;&#34;}`,
+        });
+        break;
+      }
+    }
+  }
+
+  return alerts;
+}
+</code></pre>
+<p>Jika terdeteksi macet, fungsi <code>generateRouteAlternatives</code> menghitung jarak koridor terdampak secara dinamis via Haversine dan meminta <strong>Gemini 3.8 Flash</strong> menyusun 2 opsi jalur bypass nyata di Surabaya sesuai koordinat paket (atau menggunakan kalkulasi geometris saat <code>USE_MOCK_AI=true</code>):</p>
+<pre><code language="language-typescript" class="language-typescript">export async function generateRouteAlternatives(
+  delivery: Delivery,
+  threatZone: TrafficZone
+): Promise&lt;{
+  originalRoute: { path: string[]; durationMins: number; risk: string };
+  alternatives: Array&lt;{ name: string; via: string; durationMins: number; distanceKm: number; isRecommended: boolean }&gt;;
+  isSimulated?: boolean;
+}&gt; {
+  const rawDistKm =
+    haversineKm(threatZone.lat, threatZone.lng, delivery.lat, delivery.lng) ?? 2.5;
+  const baseRoadKm = Math.max(1.2, parseFloat((rawDistKm * 1.3 + threatZone.radius * 0.6).toFixed(1)));
+  const congestedSpeedKmh = threatZone.level === &#34;critical&#34; ? 9 : 14;
+  const originalDurationMins = Math.max(8, Math.round((baseRoadKm / congestedSpeedKmh) * 60));
+
+  const client = getGenAIClient();
+  if (client) {
+    // Mode Live: Gemini 3.8 Flash menyusun rute bypass jalan nyata Surabaya (JSON)
+    const result = await client.models.generateContent({
+      model: MODEL_NAME,
+      contents: [{ role: &#34;user&#34;, parts: [{ text: prompt }] }],
+      config: { temperature: 0.1, responseMimeType: &#34;application/json&#34; },
+    });
+    // ... parsing &amp; normalisasi alternatif rute
+  }
+
+  // Mode Simulasi (USE_MOCK_AI=true): kalkulasi geometris berbasis Haversine
+  const bypass1Km = parseFloat((baseRoadKm * 1.15).toFixed(1));
+  const bypass2Km = parseFloat((baseRoadKm * 1.32).toFixed(1));
+  return {
+    originalRoute: { path: [threatZone.name, delivery.address], durationMins: originalDurationMins, risk: threatZone.level || &#34;high&#34; },
+    alternatives: [
+      { name: `Bypass Sekunder (${threatZone.area})`, via: `Hindari radius ${threatZone.radius} km ${threatZone.name}`, durationMins: Math.max(5, Math.round((bypass1Km / 26) * 60)), distanceKm: bypass1Km, isRecommended: true },
+      { name: &#34;Koridor Lingkar Alternatif&#34;, via: `Lingkar luar ${threatZone.area}`, durationMins: Math.max(6, Math.round((bypass2Km / 24) * 60)), distanceKm: bypass2Km, isRecommended: false },
+    ],
+    isSimulated: true,
+  };
+}
+</code></pre>
+<h2 is-upgraded>2. Rendering Navigasi Google Maps di Browser (Frontend)</h2>
+<p>Pada <code>frontend/src/components/GoogleMap.tsx</code>, navigasi mengintegrasikan <strong>Google Routes API v2</strong> (<code>routes.googleapis.com/directions/v2:computeRoutes</code>) untuk menghitung rute berbasis kondisi lalu lintas riil (<em>traffic-aware</em>), dilengkapi dekoder polyline dan rendering native <code>google.maps.Polyline</code>:</p>
+<pre><code language="language-typescript" class="language-typescript">// 1. Panggil Google Routes API v2 (computeRoutes) dengan preferensi lalu lintas riil
+const routesData = await fetchModernRoutesApi(origin, destination, apiKey);
+
+if (routesData?.routes &amp;&amp; routesData.routes.length &gt; 0) {
+  // Decode string polyline terkompresi dari Routes API v2
+  const pts = decodeGooglePolyline(routesData.routes[routeIndex].polyline.encodedPolyline);
+
+  // Render garis rute pada peta
+  customPolylineRef.current = new window.google.maps.Polyline({
+    path: pts,
+    strokeColor: &#34;#10b981&#34;,
+    strokeWeight: 6,
+    strokeOpacity: 0.95,
+    map,
+    zIndex: 50,
+  });
+} else {
+  // 2. Jalur visual langsung saat offline
+  customPolylineRef.current = new window.google.maps.Polyline({
+    path: [origin, destination],
+    strokeColor: &#34;#10b981&#34;,
+    strokeWeight: 4,
+    strokeOpacity: 0.7,
+    map,
+    zIndex: 50,
+  });
+}
+</code></pre>
+<h2 is-upgraded>3. Geofencing 200 Meter dengan Formula Haversine</h2>
+<p>Untuk memastikan kurir benar-benar tiba di lokasi pengantaran sebelum menandai pesanan selesai, sistem menerapkan validasi geofencing berbasis <strong>Formula Haversine</strong>:</p>
+<aside class="special"><p><strong>Formula Jarak Lingkaran Besar (Great-Circle Distance — Haversine)</strong></p>
+<p> <span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mtable rowspacing="0.25em" columnalign="right left" columnspacing="0em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mi>a</mi></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>=</mo><msup><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mrow><mo fence="true">(</mo><mfrac><mrow><mi mathvariant="normal">Δ</mi><mtext>lat</mtext></mrow><mn>2</mn></mfrac><mo fence="true">)</mo></mrow><mo>+</mo><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mtext>lat</mtext><mn>1</mn></msub><mo stretchy="false">)</mo><mo>⋅</mo><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mtext>lat</mtext><mn>2</mn></msub><mo stretchy="false">)</mo><mo>⋅</mo><msup><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mrow><mo fence="true">(</mo><mfrac><mrow><mi mathvariant="normal">Δ</mi><mtext>lng</mtext></mrow><mn>2</mn></mfrac><mo fence="true">)</mo></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mi>c</mi></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>=</mo><mn>2</mn><mo>⋅</mo><mi mathvariant="normal">atan2</mi><mo>⁡</mo><mrow><mo fence="true">(</mo><msqrt><mi>a</mi></msqrt><mo separator="true">,</mo><mtext>  </mtext><msqrt><mrow><mn>1</mn><mo>−</mo><mi>a</mi></mrow></msqrt><mo fence="true">)</mo></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mi>d</mi></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>=</mo><mi>R</mi><mo>⋅</mo><mi>c</mi><mspace width="1em"/><mo stretchy="false">(</mo><mi>R</mi><mo>=</mo><mn>6.371</mn><mtext> km</mtext><mo stretchy="false">)</mo></mrow></mstyle></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+a &amp;= \sin^2\left(\frac{\Delta \text{lat}}{2}\right) + \cos(\text{lat}_1) \cdot \cos(\text{lat}_2) \cdot \sin^2\left(\frac{\Delta \text{lng}}{2}\right) \\[8pt]
+c &amp;= 2 \cdot \operatorname{atan2}\left(\sqrt{a},\; \sqrt{1 - a}\right) \\[8pt]
+d &amp;= R \cdot c \quad (R = 6.371\text{ km})
+\end{aligned}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:6.4844em;vertical-align:-2.9922em;"></span><span class="mord"><span class="mtable"><span class="col-align-r"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:3.4922em;"><span style="top:-5.4922em;"><span class="pstrut" style="height:3.45em;"></span><span class="mord"><span class="mord mathnormal">a</span></span></span><span style="top:-3.1178em;"><span class="pstrut" style="height:3.45em;"></span><span class="mord"><span class="mord mathnormal">c</span></span></span><span style="top:-0.8178em;"><span class="pstrut" style="height:3.45em;"></span><span class="mord"><span class="mord mathnormal">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.9922em;"><span></span></span></span></span></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:3.4922em;"><span style="top:-5.4922em;"><span class="pstrut" style="height:3.45em;"></span><span class="mord"><span class="mord"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mop"><span class="mop">sin</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8719em;"><span style="top:-3.1208em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">Δ</span><span class="mord text"><span class="mord">lat</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop">cos</span><span class="mopen">(</span><span class="mord"><span class="mord text"><span class="mord">lat</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop">cos</span><span class="mopen">(</span><span class="mord"><span class="mord text"><span class="mord">lat</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop"><span class="mop">sin</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8719em;"><span style="top:-3.1208em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">Δ</span><span class="mord text"><span class="mord">lng</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span></span></span><span style="top:-3.1178em;"><span class="pstrut" style="height:3.45em;"></span><span class="mord"><span class="mord"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop"><span class="mord mathrm">atan2</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size1">(</span></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8492em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">a</span></span></span><span style="top:-2.8092em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1908em;"><span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9144em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">a</span></span></span><span style="top:-2.8744em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1256em;"><span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size1">)</span></span></span></span></span><span style="top:-0.8178em;"><span class="pstrut" style="height:3.45em;"></span><span class="mord"><span class="mord"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">c</span><span class="mspace" style="margin-right:1em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">6.371</span><span class="mord text"><span class="mord"> km</span></span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.9922em;"><span></span></span></span></span></span></span></span></span></span></span></span> </p>
+<p><strong>Keterangan Notasi &amp; Aturan Validasi:</strong></p>
+<ul>
+<li><code>lat₁, lng₁</code>: Titik koordinat posisi GPS kurir saat ini (derajat desimal).</li>
+<li><code>lat₂, lng₂</code>: Titik koordinat alamat tujuan penerima paket (derajat desimal).</li>
+<li><code>Δlat = lat₂ - lat₁</code>, <code>Δlng = lng₂ - lng₁</code> (dikonversi ke radian: <code>rad = deg × π / 180</code>).</li>
+<li><code>R = 6.371 km</code>: Radius rata-rata kelengkungan bumi.</li>
+<li><code>d</code>: Jarak lurus permukaan bumi (dalam kilometer).</li>
+<li><strong>Aturan Geofencing</strong>: Tombol <em>&#34;Tandai Terkirim&#34;</em> hanya aktif jika kurir berada dalam radius <code>d ≤ 0.20 km</code> (≤ 200 meter dari koordinat tujuan).</li>
+</ul>
+</aside>
+<p>Fungsi Haversine di <code>backend/src/services/traffic-agent.ts</code>:</p>
+<pre><code language="language-typescript" class="language-typescript">export function haversineKm(
+  lat1: number | null | undefined,
+  lng1: number | null | undefined,
+  lat2: number | null | undefined,
+  lng2: number | null | undefined
+): number | null {
+  if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
+  const R = 6371; // Radius bumi dalam kilometer
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+</code></pre>
+<p>Pada <code>frontend/src/pages/CourierPage.tsx</code>, tombol penyelesaian pengiriman terkunci otomatis (<em>disabled</em>) dengan ikon gembok jika kurir berada di luar radius 200 meter:</p>
+<pre><code language="language-typescript" class="language-typescript">// Batas radius kehadiran fisik kurir (konfigurabel via env, default 200m / 0.2 km)
+const DELIVERY_MARK_RADIUS_KM = FRONTEND_CONFIG.deliveryMarkRadiusKm;
+
+// Evaluasi status penguncian tombol secara real-time
+const canMarkDelivered =
+  !!activeDelivery &amp;&amp;
+  activeDelivery.status !== &#34;delivered&#34; &amp;&amp;
+  activeDistanceKm != null &amp;&amp;
+  activeDistanceKm &lt;= DELIVERY_MARK_RADIUS_KM;
+
+const markDeliveredReason = !activeDelivery
+  ? &#34;Tidak ada tujuan aktif&#34;
+  : activeDelivery.status === &#34;delivered&#34;
+  ? &#34;Pengiriman sudah selesai&#34;
+  : activeDistanceKm == null
+  ? &#34;Lokasi kurir belum tersedia&#34;
+  : activeDistanceKm &gt; DELIVERY_MARK_RADIUS_KM
+  ? `Masih ${activeDeliveryDistanceLabel} dari lokasi tujuan`
+  : &#34;Siap ditandai terkirim&#34;;
+</code></pre>
+<p>Ketika kurir tiba dalam jarak ≤ 200 meter dari rumah/gedung penerima, status tombol secara otomatis berubah menjadi hijau aktif (<em>&#34;Tandai Terkirim&#34;</em>).</p>
+<h2 is-upgraded>4. Alur Kerja Antarmuka Kurir di Lapangan</h2>
+<p>Antarmuka Kurir (<code>frontend/src/pages/CourierPage.tsx</code>) dirancang khusus untuk operasional pengiriman di lapangan dengan 3 tab navigasi utama:</p>
+<ul>
+<li><strong>Rute</strong>: Menampilkan rute navigasi aktif Google Maps dan kartu alamat tujuan saat ini.</li>
+<li><strong>Lapor</strong>: Memungkinkan kurir mengunggah foto rintangan atau merekam suara saat menghadapi kemacetan/hambatan jalan.</li>
+<li><strong>Paket</strong>: Daftar seluruh paket pengiriman, fitur optimasi rute terdekat (<em>Nearest Neighbor</em>), dan tombol konfirmasi yang tervalidasi radius 200 meter.</li>
+</ul>
+<p class="image-container"><img alt="Tampilan Antarmuka Kurir NusaRoute AI" src="img/e1dce7c578b60d52.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Uji Coba End-to-End &amp; Live Demo" duration="15">
+        <p>Jalankan skenario pengujian berikut untuk memverifikasi fungsionalitas end-to-end sistem:</p>
+<h2 is-upgraded>Skenario Uji A: Antarmuka Web Interaktif (GUI — Dispatcher &amp; Kurir)</h2>
+<ol type="1">
+<li>Buka 2 jendela browser secara berdampingan (gunakan satu jendela normal dan satu jendela <strong>Incognito / Private Window</strong> agar sesi JWT pengguna tidak saling menimpa). Aplikasi menyediakan <strong>2 opsi login</strong> — <strong>Username/Email + Password</strong> (<code>POST /api/login</code>, kata sandi dev default <code>nusaroute2026</code>) maupun <strong>Masuk dengan Google</strong> (<code>POST /api/login/google</code> via Firebase Auth) yang sama-sama menerbitkan <strong>HS256 JWT + RBAC</strong>: <ul>
+<li><strong>Jendela 1 (Dispatcher)</strong>: Buka <code>http://localhost:5173</code>, masuk dengan username <code>dispatcher</code> (<code>dispatcher@nusaroute.ai</code>) atau klik <strong>Masuk dengan Google</strong> memakai email yang sudah didaftarkan via <code>npm run user:add -- --role dispatcher</code>. Jika paket awal masih berstatus <code>unassigned</code>, klik tombol <strong>Auto-Assign</strong> agar sistem membagikan paket ke kurir terdekat secara otomatis berbasis koordinat hub dinamis.</li>
+<li><strong>Jendela 2 (Kurir — Incognito)</strong>: Buka <code>http://localhost:5173</code>, masuk dengan username <code>budi</code> (<code>budi@nusaroute.ai</code>) atau klik <strong>Masuk dengan Google</strong> memakai email kurir yang sudah didaftarkan via <code>npm run user:add -- --role courier</code>.</li>
+</ul>
+</li>
+</ol>
+<p class="image-container"><img alt="Tampilan Dasbor Dispatcher NusaRoute AI" src="img/cb367776524b763a.png"></p>
+<ol type="1" start="2">
+<li>Di antarmuka kurir: <ul>
+<li>Pada tab <strong>Rute</strong>, periksa rute navigasi dan kartu tujuan aktif yang menampilkan alamat penerima.</li>
+<li>Pada tab <strong>Paket</strong>, klik <strong>Optimalkan Rute</strong> untuk melihat pengurutan titik terdekat (<em>Nearest-Neighbor</em>) + <em>AI Route Insight</em>, lalu amati tombol konfirmasi terkirim yang terkunci otomatis jika jarak GPS &gt; 200m.</li>
+</ul>
+</li>
+<li>Ketuk tab <strong>Lapor</strong> pada navigasi bawah: <ul>
+<li>Ambil/unggah foto kemacetan atau rekam pesan suara via tombol mikrofon.</li>
+<li>Klik tombol <strong>Kirim Laporan Hambatan</strong>.</li>
+</ul>
+</li>
+<li>Perhatikan respons sistem dalam tempo &lt;2 detik: <ul>
+<li>Gemini 3.8 Flash mengekstrak insiden ke JSON.</li>
+<li>Perubahan rute dan keputusan agen disimpan ke Cloud Firestore (<code>deliveries</code>, <code>incident_reports</code>, <code>agent_decisions</code>) melalui Firebase Admin SDK dengan pembatasan peran (RBAC) dan aturan keamanan database Firestore yang ketat.</li>
+<li>Di kedua layar, rute merah otomatis berubah menjadi rute hijau alternatif.</li>
+<li>Papan analitik menampilkan estimasi penghematan jarak dan waktu berdasarkan rute terdekat (<em>Nearest-Neighbor</em>) dan pengelompokan pos singgah (<em>Smart Hub</em>).</li>
+</ul>
+</li>
+</ol>
+<h2 is-upgraded>Skenario Uji B: Eksekusi Cepat via Terminal (CLI)</h2>
+<p>Anda juga dapat menguji kemampuan penalaran multimodal model langsung dari terminal tanpa harus membuka browser:</p>
+<pre><code language="language-bash" class="language-bash"># 1. Uji analisis foto kemacetan jalan dengan Gemini
+npm run test:incident
+
+# 2. Uji analisis rekaman suara kurir secara langsung
+npm run test:voice
+</code></pre>
+<p>Skrip ini akan memproses sampel foto/audio di memori RAM dan mencetak struktur JSON hasil penalaran AI beserta kecepatan waktu eksekusinya.</p>
+<h2 is-upgraded>Skenario Uji C: Penyegaran &amp; Reset Data Demo (CLI &amp; GUI)</h2>
+<p>Setelah Anda selesai melakukan demo pengiriman, pengalihan rute, atau pengubahan status paket menjadi <em>delivered</em>, Anda dapat mengembalikan seluruh sistem ke kondisi awal untuk presentasi berikutnya:</p>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash">npm run db:reset
+# atau mode instan tanpa konfirmasi interaktif:
+npm run db:reset -- -f
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong> Masuk ke dasbor Dispatcher (<code>http://localhost:5173</code>), lalu klik tombol <strong>Reset Data Demo</strong> pada menu panel aksi kiri (<em>sidebar</em>). Seluruh 15 paket pengiriman akan langsung kembali ke status <em>unassigned</em> dan riwayat laporan sementara dibersihkan.</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Algoritma Optimasi Rute &amp; Ketahanan Sistem" duration="8">
+        <p>Selain kapabilitas AI, sistem memanfaatkan algoritma optimasi rute matematis dan pola ketahanan (<em>resilience</em>) untuk menjaga performa aplikasi:</p>
+<h2 is-upgraded>1. Nearest-Neighbor TSP Solver</h2>
+<p>Pada <code>backend/src/services/traffic-agent.ts</code>, sistem menyusun urutan pengantaran optimal menggunakan algoritma <em>Nearest-Neighbor</em>:</p>
+<ul>
+<li><strong>Mekanisme Kerja</strong>: Berangkat dari koordinat awal kurir (misal: Stasiun Gubeng), sistem menghitung jarak Haversine ke setiap paket yang belum diantar, lalu memilih titik terdekat berikutnya secara sekuensial ($O(n^2)$).</li>
+<li><strong>Hasil Benchmark</strong>: Pada 15 titik simulasi pengiriman Surabaya (<code>DEL-001</code> s.d. <code>DEL-015</code>), algoritma ini memangkas total jarak tempuh dari <code>27,16 km</code> menjadi <code>21,97 km</code> (menghemat <code>5,19 km</code> atau ~19% jarak bolak-balik).</li>
+</ul>
+<p>Uji algoritma via terminal atau cURL (endpoint backend dilindungi Bearer JWT Dispatcher atau header <code>x-api-key</code>):</p>
+<pre><code language="language-bash" class="language-bash">curl -X POST http://localhost:3000/api/deliveries/tsp-benchmark \
+  -H &#34;Content-Type: application/json&#34; \
+  -H &#34;x-api-key: &lt;API_KEY_DI_BACKEND_ENV&gt;&#34; \
+  -d &#39;{&#34;origin&#34;: {&#34;lat&#34;: -7.2652, &#34;lng&#34;: 112.7523}}&#39;
+</code></pre>
+<h2 is-upgraded>2. Telemetri Latensi &amp; Audit Kuota Token</h2>
+<p>Pada berkas <code>backend/src/services/ai-agent.ts</code>, setiap respons dari Gemini 3.8 Flash mencatat informasi performa sistem:</p>
+<ul>
+<li><strong>Waktu Respon (</strong><strong><code>latencyMs</code></strong><strong>)</strong>: Rata-rata 1.200 hingga 1.800 ms untuk memproses foto dan rekaman suara.</li>
+<li><strong>Penggunaan Token</strong>: Mencatat <code>promptTokenCount</code> dan <code>candidatesTokenCount</code> dari <code>response.usageMetadata</code> untuk audit kapasitas penggunaan API.</li>
+</ul>
+<h2 is-upgraded>3. Ketahanan Sistem: Percobaan Ulang Bertahap (Exponential Backoff)</h2>
+<p>Untuk mengantisipasi gangguan jaringan sementara atau pembatasan kuota (HTTP 429), fungsi <code>withRetry</code> di <code>backend/src/services/ai-agent.ts</code> menerapkan sistem percobaan ulang bertahap (<em>exponential backoff</em>) dengan variasi jeda acak:</p>
+<aside class="special"><p><strong>Formula Percobaan Ulang Bertahap dengan Jeda Acak (Random Jitter)</strong></p>
+<p> <span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>t</mi><mtext>delay</mtext></msub><mo>=</mo><msub><mi>t</mi><mtext>base</mtext></msub><mo>⋅</mo><msup><mn>2</mn><mrow><mtext>attempt</mtext><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><msub><mi>t</mi><mtext>jitter</mtext></msub></mrow><annotation encoding="application/x-tex">t_{\text{delay}} = t_{\text{base}} \cdot 2^{\text{attempt} - 1} + t_{\text{jitter}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9012em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">delay</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7651em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">base</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9474em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">attempt</span></span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9012em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3175em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">jitter</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></span> </p>
+<p><strong>Keterangan Parameter &amp; Penjelasan:</strong></p>
+<ul>
+<li><code>t_delay</code>: Durasi total jeda waktu sebelum percobaan ulang berikutnya (milidetik).</li>
+<li><code>t_base = 600 ms</code>: Interval jeda dasar (<code>baseDelayMs = 600</code> di <code>ai-agent.ts</code>).</li>
+<li><code>attempt</code>: Indeks urutan percobaan ulang (<code>1, 2</code> dengan batas <code>maxRetries = 2</code>).</li>
+<li><code>t_jitter</code>: Variasi jeda acak (<code>0–200 ms</code> via <code>Math.random() * 200</code>) untuk mencegah *thundering herd problem* (lonjakan permintaan serentak yang membebani server saat beberapa klien melakukan retry bersamaan).</li>
+</ul>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Deployment Produksi (Cloud Run &amp; Firebase Hosting)" duration="7">
+        <p>Tahap akhir adalah deployment backend dan frontend ke infrastruktur serverless Google Cloud produksi. Anda dapat memilih antara <strong>Pilihan A: Deployment Otomatis via Skrip</strong> (sangat cepat, otomatis menyuntikkan seluruh variabel lingkungan dari file <code>backend/.env</code> ke Cloud Run tanpa perlu entri manual) atau <strong>Pilihan B: Deployment Manual Langkah demi Langkah</strong> (untuk memahami alur konfigurasi infrastruktur secara mendalam).</p>
+<h2 is-upgraded>Pilihan A: Deployment Otomatis via Skrip (<code>npm run deploy</code>) — Direkomendasikan</h2>
+<p>NusaRoute AI menyediakan skrip automasi deployment mandiri (<code>deploy.js</code>) yang secara terpadu:</p>
+<ol type="1">
+<li>Membaca konfigurasi produksi dari <code>backend/.env</code> dan menyuntikkannya langsung ke Google Cloud Run via berkas parameter aman (<em>zero manual typing</em>).</li>
+<li>Mengonfigurasi otomatis izin IAM build (<code>roles/serviceusage.serviceUsageConsumer</code> dan <code>roles/cloudbuild.builds.builder</code>) pada default Compute Service Account, lalu membangun dan men-deploy backend kontainer ke <strong>Google Cloud Run</strong> di region <code>asia-southeast2</code> (Jakarta) dengan status <em>scale-to-zero</em> dan <em>Fail-Fast Secret Guard</em>.</li>
+<li>Mengonfigurasi <strong>Google Cloud Scheduler</strong> (<code>POST /api/agent/tick</code> setiap 3 menit) menggunakan URL Cloud Run dan <code>API_KEY</code> produksi yang aktif.</li>
+<li>Memperbarui <code>VITE_BACKEND_URL</code> pada frontend, mengompilasi bundel produksi (<code>npm run build --workspace=frontend</code>), dan mempublikasikannya ke CDN <strong>Firebase Hosting</strong> beserta aturan keamanan <code>firestore.rules</code>.</li>
+<li>Memverifikasi status kesehatan server (<em>Health Check</em>) ke endpoint <code>/api/health</code>.</li>
+</ol>
+<p>Jalankan perintah berikut dari root direktori proyek:</p>
+<pre><code language="language-bash" class="language-bash">npm run deploy
+</code></pre>
+<p><strong>Tips Sub-perintah Mandiri:</strong> Jika Anda hanya ingin men-deploy satu komponen secara terpisah, gunakan opsi berikut:</p>
+<ul>
+<li><code>npm run deploy:backend</code> — Hanya deploy ulang backend ke Google Cloud Run dengan variabel lingkungan terbaru.</li>
+<li><code>npm run deploy:frontend</code> — Hanya build dan publikasikan ulang frontend ke Firebase Hosting.</li>
+<li><code>npm run deploy:scheduler</code> — Hanya sinkronisasi cron job di Google Cloud Scheduler.</li>
+</ul>
+<h2 is-upgraded>Pilihan B: Deployment Manual Langkah demi Langkah</h2>
+<p>Jika Anda ingin memahami detail konfigurasi setiap layanan atau melakukan kustomisasi parameter infrastruktur secara langsung, ikuti langkah manual berikut:</p>
+<h3 is-upgraded>1. Konfigurasi Izin IAM Service Account untuk Cloud Build</h3>
+<p>Deployment backend Cloud Run berbasis source code (<code>--source .</code>) memanfaatkan Cloud Build di latar belakang. Berikan hak akses <em>builder</em> dan <em>consumer</em> ke <em>default compute service account</em>:</p>
+<pre><code language="language-bash" class="language-bash"># Dapatkan Project Number
+PROJECT_NUMBER=$(gcloud projects describe &lt;PROJECT_ID&gt; --format=&#34;value(projectNumber)&#34;)
+
+# Berikan role consumer &amp; builder ke default compute service account
+gcloud projects add-iam-policy-binding &lt;PROJECT_ID&gt; \
+  --member=&#34;serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com&#34; \
+  --role=&#34;roles/serviceusage.serviceUsageConsumer&#34;
+
+gcloud projects add-iam-policy-binding &lt;PROJECT_ID&gt; \
+  --member=&#34;serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com&#34; \
+  --role=&#34;roles/cloudbuild.builds.builder&#34;
+</code></pre>
+<h3 is-upgraded>2. Deploy Backend ke Google Cloud Run</h3>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash">cd backend
+gcloud run deploy nusaroute-api \
+  --source . \
+  --region asia-southeast2 \
+  --allow-unauthenticated \
+  --port 8080 \
+  --memory 1Gi \
+  --cpu 1 \
+  --min-instances 0 \
+  --max-instances 3 \
+  --set-env-vars &#34;NODE_ENV=production,USE_MOCK_AI=false,GEMINI_MODEL=gemini-3.8-flash,ENABLE_AUTO_SEED=false,ENABLE_AGENT_LOOP=false,GOOGLE_AUTO_REGISTER=false&#34;
+</code></pre>
+</li>
+</ul>
+<aside class="special"><p><strong>Rasional Penentuan Spesifikasi Kontainer (Container Sizing Guide):</strong></p>
+<ul>
+<li><strong><code>--cpu 1</code></strong>: Backend Express/Node.js bersifat <em>single-threaded event loop</em> dan beban kerja (<em>workload</em>) didominasi oleh operasi <em>I/O-Bound</em> (menunggu respons Gemini API, Firestore, dan Google Maps). Alokasi 1 vCPU sudah optimal untuk melayani puluhan <em>concurrent requests</em> tanpa pemborosan komputasi.</li>
+<li><strong><code>--memory 1Gi</code></strong>: Mengalokasikan RAM yang cukup untuk baseline runtime Node.js (~100 MiB), buffer parsing payload base64 gambar/audio kurir (~3–5 MiB per request aktif), serta ruang aman (<em>headroom</em>) bagi <em>garbage collector</em> V8 agar terhindar dari error <em>Out Of Memory (OOM)</em>.</li>
+<li><strong><code>--min-instances 0</code></strong>: Memanfaatkan fitur <em>scale-to-zero</em> serverless sehingga biaya komputasi adalah $0 saat tidak ada trafik.</li>
+<li><strong><code>--max-instances 3</code></strong>: Bertindak sebagai <em>budget guardrail</em> (pengaman anggaran) yang membatasi autoscaling horizontal agar lonjakan trafik tidak menimbulkan pembengkakan biaya tak terduga.</li>
+</ul>
+</aside>
+<ul>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li>Buka <a href="https://console.cloud.google.com/run" target="_blank">Google Cloud Console → Cloud Run</a>, klik <strong>+ Deploy container</strong> (atau <strong>Create service</strong> / <strong>Connect repo</strong> untuk deploy langsung dari repositori GitHub).</li>
+<li>Atur <strong>Service name</strong> ke <code>nusaroute-api</code>, <strong>Region</strong> ke <code>asia-southeast2 (Jakarta)</code>, dan aktifkan opsi <strong>Allow unauthenticated invocations</strong>.</li>
+<li>Pada bagian <strong>Container, Networking, Security</strong>, set <strong>Container port</strong> ke <code>8080</code>, <strong>CPU allocation</strong> ke <em>CPU is always allocated</em> (setara opsi <code>--no-cpu-throttling</code>), dan <strong>Maximum instances</strong> ke <code>3</code>.</li>
+<li>Tambahkan variabel lingkungan pada tab <strong>Variables &amp; Secrets</strong> (atau impor dari Secret Manager) → klik <strong>Create</strong>.</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman Services Cloud Run di Google Cloud Console" src="img/55b2c5789616897f.png"></p>
+<p><strong>Konfigurasi Environment Variables di Cloud Run:</strong> Variabel <code>PORT</code> bersifat <em>reserved</em> dan disuntikkan otomatis oleh Cloud Run via <code>--port 8080</code> (jangan dimasukkan ke <code>--set-env-vars</code>). Tambahkan variabel berikut via Secret Manager / tab <strong>Variables &amp; Secrets</strong> (<em>Edit &amp; Deploy New Revision</em>):</p>
+<ul>
+<li><code>GEMINI_API_KEY</code>: Kunci API Gemini Anda</li>
+<li><code>USE_MOCK_AI</code>: <code>false</code> (atau <code>true</code> hanya untuk mode simulasi tanpa API key)</li>
+<li><code>FIREBASE_PROJECT_ID</code>, <code>FIREBASE_CLIENT_EMAIL</code>, <code>FIREBASE_PRIVATE_KEY</code></li>
+<li><code>JWT_SECRET</code>: Kunci acak kuat (≥32 karakter) untuk menandatangani token HS256 JWT per pengguna</li>
+<li><code>API_KEY</code>: Kunci acak kuat untuk autentikasi <em>machine-to-machine</em> (Cloud Scheduler → <code>POST /api/agent/tick</code>)</li>
+<li><code>ENABLE_AUTO_SEED</code>: <code>false</code> (default aman di produksi agar tidak menimpa data live)</li>
+<li><code>ENABLE_AGENT_LOOP</code>: <code>false</code> (disarankan untuk multi-instance Cloud Run; jadwalkan Google Cloud Scheduler memanggil <code>POST /api/agent/tick</code> tiap 3 menit dengan header <code>X-API-Key</code>)</li>
+<li><code>GOOGLE_AUTO_REGISTER</code>: <code>false</code> (default ketat — Login Google TIDAK membuat akun baru; hanya email yang sudah terdaftar via <code>npm run user:add</code> atau <code>POST /api/users</code> yang boleh masuk). Set <code>true</code> hanya jika ingin mengizinkan registrasi mandiri sebagai <code>courier</code>.</li>
+</ul>
+<aside class="special"><p><strong>Catatan Teknis Cloud Run &amp; Penyimpanan Status Agen:</strong></p>
+<ul>
+<li><strong>Penyimpanan Firestore + Cloud Scheduler</strong>: Riwayat keputusan agen (<code>agent_decisions</code>) dan data statistik disimpan ke Firestore sehingga tidak hilang saat server kontainer sedang berhenti otomatis karena tidak ada permintaan (<em>scale-to-zero</em>). Untuk multi-instance produksi, set <code>ENABLE_AGENT_LOOP=false</code> dan pemicu tunggal via Cloud Scheduler ke <code>POST /api/agent/tick</code>.</li>
+<li><strong><code>--no-cpu-throttling</code></strong>: Diperlukan hanya jika Anda memilih menjalankan perulangan pemantauan internal (<code>ENABLE_AGENT_LOOP=true</code>) pada satu server.</li>
+<li><strong><code>--max-instances 3</code></strong>: Membatasi skala horizontal instans secara terkontrol untuk mencegah lonjakan biaya saat terjadi peningkatan trafik tak terduga.</li>
+<li><strong>Keamanan Kontainer &amp; Validasi Konfigurasi</strong>: <code>Dockerfile</code> berjalan dengan pengguna non-root (<code>USER node</code>) dan dilengkapi <code>HEALTHCHECK</code>; backend membaca header <code>trust proxy</code> untuk pencatatan IP asli pada pembatas laju (<em>rate limiter</em>), serta menerapkan validasi yang menolak inisialisasi jika <code>JWT_SECRET</code> atau <code>API_KEY</code> belum memenuhi standar keamanan produksi.</li>
+<li><strong>Graceful Shutdown</strong>: Backend menangani sinyal <code>SIGTERM</code> dari Cloud Run untuk menghentikan timer daemon sebelum instance ditutup.</li>
+</ul>
+</aside>
+<p>Salin URL Service yang dihasilkan (contoh: <code>https://nusaroute-api-xxx.asia-southeast2.run.app</code>).</p>
+<h3 is-upgraded>3. Penjadwalan Siklus Agen Otonom (Google Cloud Scheduler)</h3>
+<p>Pada arsitektur produksi Cloud Run multi-instance, perulangan internal latar belakang (<code>ENABLE_AGENT_LOOP=false</code>) dinonaktifkan guna menghindari duplikasi eksekusi agen di beberapa kontainer sekaligus. Sebagai gantinya, pemicu eksekusi agen berkala diserahkan ke <strong>Google Cloud Scheduler</strong> untuk memanggil endpoint <code>POST /api/agent/tick</code> setiap 3 menit:</p>
+<ul>
+<li><strong>Opsi Terminal (CLI):</strong><pre><code language="language-bash" class="language-bash"># Pastikan Cloud Scheduler API telah aktif
+gcloud services enable cloudscheduler.googleapis.com
+
+# Daftarkan job scheduler pemanggil agen otonom
+gcloud scheduler jobs create http nusaroute-agent-tick \
+  --location=asia-southeast2 \
+  --schedule=&#34;*/3 * * * *&#34; \
+  --uri=&#34;https://&lt;CLOUD_RUN_URL&gt;/api/agent/tick&#34; \
+  --http-method=POST \
+  --headers=&#34;X-API-Key=&lt;API_KEY_PRODUKSI&gt;&#34;
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI):</strong><ol type="1">
+<li>Buka <a href="https://console.cloud.google.com/cloudscheduler" target="_blank">Google Cloud Console → Cloud Scheduler</a> → klik <strong>+ Create job</strong> (atau <strong>Buat Tugas</strong>).</li>
+<li>Masukkan <strong>Name </strong><code>nusaroute-agent-tick</code>, <strong>Region </strong><code>asia-southeast2 (Jakarta)</code>, dan <strong>Frequency (Cron) </strong><code>*/3 * * * *</code> (setiap 3 menit) dengan Timezone <code>Jakarta (WIB)</code>.</li>
+<li>Pada bagian <strong>Configure execution</strong>, pilih target <strong>HTTP</strong>, masukkan URL <code>https://&lt;CLOUD_RUN_URL&gt;/api/agent/tick</code>, dan metode <strong>POST</strong>.</li>
+<li>Klik <strong>Add a header</strong>: masukkan Name <code>X-API-Key</code> dan Value <code>&lt;API_KEY_PRODUKSI&gt;</code> Anda.</li>
+<li>Klik <strong>Create</strong> untuk mengaktifkan pemanggilan agen otonom secara berkala.</li>
+</ol>
+</li>
+</ul>
+<p class="image-container"><img alt="Halaman Cloud Scheduler di Google Cloud Console" src="img/868c1469fe4920e9.png"></p>
+<h3 is-upgraded>4. Deploy Frontend ke Firebase Hosting</h3>
+<ol type="1">
+<li>Perbarui <code>frontend/.env.local</code> (atau <code>frontend/.env</code>): <pre><code language="language-env" class="language-env">VITE_BACKEND_URL=https://nusaroute-api-xxx.asia-southeast2.run.app
+VITE_GOOGLE_MAPS_API_KEY=AIzaSy...
+</code></pre>
+</li>
+<li>Berkas <code>firebase.json</code> di <strong>root repositori</strong> telah mengonfigurasi arsitektur <strong>Serverless Reverse Proxy</strong>: <pre><code language="language-json" class="language-json">&#34;rewrites&#34;: [
+  {
+    &#34;source&#34;: &#34;/api/**&#34;,
+    &#34;run&#34;: {
+      &#34;serviceId&#34;: &#34;nusaroute-api&#34;,
+      &#34;region&#34;: &#34;asia-southeast2&#34;
+    }
+  },
+  {
+    &#34;source&#34;: &#34;**&#34;,
+    &#34;destination&#34;: &#34;/index.html&#34;
+  }
+]
+</code></pre>
+<em>Rasional Arsitektur</em>: Direktif ini merutekan seluruh panggilan <code>/api/**</code> langsung ke Cloud Run Jakarta. Saat Anda mengaitkan custom domain (contoh: <code>nusaroute-ai.web.id</code>), baik frontend maupun API backend berada di domain yang sama (<em>same-origin</em>), mengeliminasi <em>preflight CORS</em> dan menghemat biaya <em>Cloud Load Balancer</em>.</li>
+<li>Publikasikan hasil build ke jaringan CDN Firebase: <ul>
+<li><strong>Opsi Terminal (CLI) </strong><em>(dari root direktori repositori)</em>: <pre><code language="language-bash" class="language-bash"># Dari root direktori repositori:
+npm run build --workspace=frontend
+npx firebase-tools deploy --only firestore:rules,hosting --project &lt;PROJECT_ID&gt;
+</code></pre>
+</li>
+<li><strong>Opsi Web Console (GUI — Inisialisasi &amp; Monitoring):</strong><ol type="1">
+<li>Buka <a href="https://console.firebase.google.com/project/_/hosting" target="_blank">Firebase Console → Hosting</a>, klik <strong>Get started</strong> untuk mengaktifkan situs Hosting pada project Anda jika baru pertama kali.</li>
+<li>Melalui dasbor Hosting, Anda dapat memantau riwayat rilis (<em>Release history</em>), mengonfigurasi <em>Custom domain</em>, serta menyalin URL produksi default Anda (misalnya: <code>https://&lt;SITE_ID&gt;.web.app</code> seperti <code>https://nusarouteai-1f67f.web.app</code> yang dialokasikan Firebase).</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<p class="image-container"><img alt="Halaman Firebase Hosting di Firebase Console" src="img/a3c6d9ecbc980406.png"></p>
+<aside class="special"><p><strong>Menghubungkan Custom Domain Pribadi (contoh: nusaroute-ai.web.id):</strong></p>
+<p>Dengan menghubungkan custom domain utama ke Firebase Hosting yang memiliki aturan <em>rewrite</em> ke Cloud Run, Anda memperoleh 3 keuntungan arsitektur utama: (1) <strong>Satu domain tunggal</strong> untuk Web (<code>nusaroute-ai.web.id</code>) dan API (<code>nusaroute-ai.web.id/api</code>), (2) <strong>Bebas hambatan CORS</strong> karena beroperasi <em>same-origin</em>, dan (3) <strong>Efisiensi biaya</strong> tanpa perlu menyewa <em>Cloud Load Balancer</em> (~$18/bulan).</p>
+<ol type="1">
+<li>Buka <strong>Firebase Console → Hosting</strong>, klik <strong>Add custom domain</strong>, lalu ketik nama domain Anda (misal: <code>nusaroute-ai.web.id</code>).</li>
+<li>Tambahkan <strong>A Record</strong> pada panel DNS registrar domain Anda sesuai IP yang tertera di konsol Firebase (misal: <code>199.36.158.100</code>). Pastikan proxy Cloudflare diset ke <strong>DNS Only</strong> (ikon awan abu-abu). Google otomatis memverifikasi TXT challenge dan menerbitkan sertifikat SSL gratis dalam 15–60 menit. <img alt="Pengaturan Custom Domain di Firebase Hosting Console" src="img/2cff74625c6fa6a1.png"></li>
+<li><strong>Mendaftarkan Domain ke Firebase Auth (Authorized Domains):</strong>Google OAuth mewajibkan whitelist domain asal agar tombol <em>Login dengan Google</em> tidak ditolak dengan error <code>auth/unauthorized-domain</code>. Ada dua cara untuk mendaftarkannya:<ul>
+<li><strong>Opsi A: Otomatis via Deployment Script / REST API (Rekomendasi)<br></strong> Skrip <code>npm run deploy</code> (pada <code>deploy.js</code>) secara otomatis memanggil Google Cloud Identity Toolkit v2 API untuk mendaftarkan domain Anda ke whitelist tanpa perlu membuka browser: <pre><code language="language-bash" class="language-bash"># Contoh pemanggilan REST API di balik layar:
+TOKEN=$(gcloud auth print-access-token)
+curl -X PATCH &#34;https://identitytoolkit.googleapis.com/v2/projects/&lt;PROJECT_ID&gt;/config?updateMask=authorizedDomains&#34; \
+  -H &#34;Authorization: Bearer $TOKEN&#34; \
+  -H &#34;x-goog-user-project: &lt;PROJECT_ID&gt;&#34; \
+  -H &#34;Content-Type: application/json&#34; \
+  -d &#39;{&#34;authorizedDomains&#34;: [&#34;localhost&#34;, &#34;&lt;PROJECT_ID&gt;.firebaseapp.com&#34;, &#34;&lt;PROJECT_ID&gt;.web.app&#34;, &#34;nusaroute-ai.web.id&#34;, &#34;www.nusaroute-ai.web.id&#34;]}&#39;
+</code></pre>
+</li>
+<li><strong>Opsi B: Manual via Web Console (GUI)<br></strong> 1. Buka <a href="https://console.firebase.google.com/project/_/authentication/settings" target="_blank">Firebase Console → Authentication → Settings</a>.<br> 2. Gulir ke bagian <strong>Authorized domains</strong> (Domain resmi).<br> 3. Klik tombol <strong>Add domain</strong> (Tambahkan domain).<br> 4. Masukkan nama domain: <code>nusaroute-ai.web.id</code> lalu klik <strong>Save</strong>.<br> 5. Ulangi untuk subdomain <code>www.nusaroute-ai.web.id</code>. <img alt="Halaman Authorized Domains di Firebase Console" src="img/ede9aa619e7f82d7.png"></li>
+</ul>
+</li>
+<li>Skrip <code>npm run deploy</code> juga secara otomatis menyuntikkan Custom Domain ke whitelist CORS backend Cloud Run (memastikan direct access via Cloud Scheduler tetap aman).</li>
+</ol>
+</aside>
+<h3 is-upgraded>5. Verifikasi Status Layanan Produksi</h3>
+<p>Pastikan kedua layanan (Cloud Run dan Firebase Hosting) bekerja normal setelah deployment:</p>
+<ul>
+<li><strong>Opsi Web Browser (GUI):</strong> Buka endpoint <em>Health Check</em> publik langsung di tab browser Anda:<pre><code>https://nusaroute-api-xxx.asia-southeast2.run.app/api/health
+</code></pre>
+Respon JSON valid akan menampilkan status <code>{"status":"ok","environment":"production",...}</code>.</li>
+<li><strong>Opsi Terminal (CLI):</strong> Gunakan perintah <code>curl</code> dengan menyertakan header <code>x-api-key</code> untuk memverifikasi endpoint analitik dan siklus agen yang terlindungi:<pre><code language="language-bash" class="language-bash"># 1. Cek status daemon pemantau trafik &amp; agen
+curl -H &#34;x-api-key: &lt;API_KEY_PRODUKSI&gt;&#34; \
+  https://nusaroute-api-xxx.asia-southeast2.run.app/api/agent/status
+
+# 2. Cek analitik pengiriman &amp; ringkasan rute
+curl -H &#34;x-api-key: &lt;API_KEY_PRODUKSI&gt;&#34; \
+  https://nusaroute-api-xxx.asia-southeast2.run.app/api/analytics
+
+# 3. Uji coba pemanggilan siklus pemicu agen (simulasi Cloud Scheduler)
+curl -X POST -H &#34;x-api-key: &lt;API_KEY_PRODUKSI&gt;&#34; \
+  https://nusaroute-api-xxx.asia-southeast2.run.app/api/agent/tick
+</code></pre>
+</li>
+</ul>
+<h3 is-upgraded>6. Monitoring &amp; Observabilitas Produksi (Cloud Monitoring, Cloud Logging &amp; Firebase Analytics)</h3>
+<p>Cloud Run dan Firebase Hosting menyediakan tiga pilar observabilitas (<em>metrics</em>, <em>logs</em>, dan <em>telemetry</em>) secara terpadu:</p>
+<h4 is-upgraded>A. Google Cloud Monitoring (Dasbor Metrik Serverless)</h4>
+<p>Cloud Run secara otomatis mengumpulkan metrik performa kontainer <em>out-of-the-box</em> tanpa beban CPU tambahan. Navigasi ke <strong>Cloud Run</strong> → pilih service <strong><code>nusaroute-api</code></strong> → tab <strong>METRICS</strong> untuk memantau:</p>
+<ul>
+<li><strong>Request Count &amp; Latency</strong>: Volume panggilan per detik serta latensi respon (P50 dan P95/P99 saat inferensi multimodal Gemini).</li>
+<li><strong>Container Instances</strong>: Grafik autoscaling dari <code>0</code> (idle) hingga <code>3</code> saat terjadi lonjakan laporan insiden.</li>
+<li><strong>CPU &amp; Memory Utilization</strong>: Konsumsi RAM kontainer Node.js (umumnya 70–120 MB, jauh di bawah batas 1 GiB).</li>
+<li><strong>Container Billable Time</strong>: Waktu eksekusi aktif kontainer yang ditagihkan per milidetik.</li>
+</ul>
+<h4 is-upgraded>B. Google Cloud Logging (Structured JSON Logging)</h4>
+<p>Backend NusaRoute AI memancarkan log berformat JSON standar ke <code>stdout</code>/<code>stderr</code> yang dapat ditelusuri di <a href="https://console.cloud.google.com/logs/viewer" target="_blank">Google Cloud Logs Explorer</a>:</p>
+<pre><code language="language-sql" class="language-sql">resource.type=&#34;cloud_run_revision&#34;
+resource.labels.service_name=&#34;nusaroute-api&#34;
+severity &gt;= WARNING
+</code></pre>
+<p>Setiap log request mencatat field <code>httpRequest</code> (status HTTP, IP kurir, user agent, durasi latensi) dan <code>severity</code> (<code>INFO</code>, <code>WARNING</code>, atau <code>ERROR</code>). Bila Gemini mengalami limit kuota Free Tier (HTTP 429), log mencatat event <code>[AI Agent Failover]</code> saat sistem mengalihkan permintaan ke model cadangan (<code>gemini-3.1-flash-lite</code>).</p>
+<h4 is-upgraded>C. Endpoint Telemetri Langsung (<code>/api/monitoring</code>)</h4>
+<p>NusaRoute AI mengekspos endpoint telemetri real-time yang dapat diakses publik tanpa token:</p>
+<ul>
+<li><strong>URL Telemetri</strong>: <code>https://&lt;CLOUD_RUN_URL&gt;/api/monitoring</code> atau <code>https://nusaroute-ai.web.id/api/monitoring</code></li>
+<li><strong>Contoh Output JSON</strong>: <pre><code language="language-json" class="language-json">{
+  &#34;status&#34;: &#34;healthy&#34;,
+  &#34;timestamp&#34;: &#34;2026-11-20T17:46:57.938Z&#34;,
+  &#34;uptime&#34;: {
+    &#34;seconds&#34;: 3600,
+    &#34;formatted&#34;: &#34;1h 0m 0s&#34;
+  },
+  &#34;system&#34;: {
+    &#34;nodeVersion&#34;: &#34;v25.6.0&#34;,
+    &#34;platform&#34;: &#34;linux&#34;,
+    &#34;memory&#34;: {
+      &#34;rssMb&#34;: 83.39,
+      &#34;heapUsedMb&#34;: 46.84
+    }
+  },
+  &#34;cloudRun&#34;: {
+    &#34;service&#34;: &#34;nusaroute-api&#34;,
+    &#34;region&#34;: &#34;asia-southeast2&#34;
+  },
+  &#34;ai&#34;: {
+    &#34;provider&#34;: &#34;Google Gemini (Generative Language API)&#34;,
+    &#34;primaryModel&#34;: &#34;gemini-3.8-flash&#34;,
+    &#34;mode&#34;: &#34;live&#34;,
+    &#34;failoverCandidates&#34;: [
+      &#34;gemini-3.8-flash&#34;,
+      &#34;gemini-3.1-flash-lite&#34;,
+      &#34;gemini-flash-lite-latest&#34;,
+      &#34;gemini-3-flash-preview&#34;
+    ],
+    &#34;isMockAi&#34;: false
+  },
+  &#34;metrics&#34;: {
+    &#34;totalRequests&#34;: 142,
+    &#34;status2xx&#34;: 140,
+    &#34;status4xx&#34;: 2,
+    &#34;status5xx&#34;: 0,
+    &#34;successRatePercent&#34;: 98.6
+  }
+}
+</code></pre>
+</li>
+</ul>
+<h4 is-upgraded>D. Firebase Hosting Analytics &amp; Edge Monitoring</h4>
+<p>Pantau frontend PWA di <a href="https://console.firebase.google.com/project/_/hosting" target="_blank">Firebase Console → Hosting</a>:</p>
+<ul>
+<li><strong>Data Transfer Out</strong>: Volume bandwidth aset statis yang didistribusikan ke ponsel kurir.</li>
+<li><strong>Requests</strong>: Jumlah permintaan halaman web dan service worker (<code>sw.js</code>).</li>
+<li><strong>CDN Cache Hit Ratio</strong>: Rasio aset terkompilasi Vite yang disajikan dari edge CDN Fastly terdekat.</li>
+<li><strong>Status Custom Domain</strong>: Pantau status sertifikat SSL (<code>CERT_VALIDATING</code> → <code>HOST_ACTIVE</code>) dan kepemilikan DNS.</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Ringkasan &amp; Sumber Belajar" duration="5">
+        <p>Anda telah menyelesaikan seluruh tahapan workshop NusaRoute AI.</p>
+<h2 is-upgraded>Rangkuman Materi Pembelajaran</h2>
+<ul>
+<li><strong>Agentic AI vs Chatbot Biasa</strong>: Memahami bagaimana agen otonom dapat memantau situasi secara mandiri (<em>Monitor</em>), mengevaluasi data (<em>Evaluate</em>), mengambil keputusan rute (<em>Decide</em>), dan mengeksekusi tindakan (<em>Act</em>) tanpa menunggu perintah manual.</li>
+<li><strong>Analisis Multimodal Gemini 3.8 Flash</strong>: Memproses laporan foto rintangan jalan dan rekaman suara kurir secara langsung menjadi data terstruktur JSON tanpa memerlukan layanan Computer Vision atau speech-to-text terpisah.</li>
+<li><strong>Structured Outputs Terjamin</strong>: Memanfaatkan JSON Schema bawaan Gemini untuk memastikan respons kecerdasan buatan selalu konsisten dan dapat diproses oleh sistem backend.</li>
+<li><strong>Integrasi Peta &amp; Validasi Radius (Geofencing)</strong>: Menggabungkan Google Maps Platform dengan perhitungan jarak Haversine (toleransi 200 meter) untuk memastikan kurir telah tiba di lokasi penerima sebelum menyelesaikan pengiriman.</li>
+<li><strong>Aplikasi Web Progresif (PWA)</strong>: Menyediakan antarmuka kurir yang ringan dan responsif untuk memantau rute aktif serta melaporkan insiden lapangan secara instan.</li>
+<li><strong>Penyimpanan Data Real-Time Firestore</strong>: Mengelola data paket, kurir, zona kemacetan, dan log keputusan agen secara aman di Google Cloud Firestore.</li>
+<li><strong>Standar Keamanan Aplikasi Modern</strong>: Menerapkan autentikasi ganda (Google Sign-In terverifikasi &amp; sandi scrypt), otorisasi berbasis peran (Role-Based Access Control), serta perlindungan token JWT.</li>
+<li><strong>Optimasi Algoritma Pengiriman</strong>: Menghemat jarak dan waktu tempuh hingga 19% menggunakan pendekatan <em>Nearest Neighbor</em> dan pengelompokan alamat (<em>clustering</em>).</li>
+<li><strong>Penyebaran Skala Produksi (Deployment)</strong>: Menjalankan backend serverless di Google Cloud Run dan frontend di Firebase Hosting dengan biaya efisien dan skalabilitas tinggi.</li>
+</ul>
+<h2 is-upgraded>Production Readiness Checklist: Menuju Skala Jutaan Pengguna</h2>
+<p>NusaRoute AI yang dibangun pada workshop ini mengimplementasikan fondasi arsitektur produksi modern. Apabila tim engineering Anda berencana membawa sistem ini ke skala komersial publik dengan jutaan pengguna aktif, berikut rekomendasi langkah penyempurnaannya:</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Komponen Sistem</p>
+</td><td colspan="1" rowspan="1"><p>Implementasi Workshop (Hands-on)</p>
+</td><td colspan="1" rowspan="1"><p>Standar Rilis Publik (Enterprise Scale)</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Komunikasi Real-time</strong></p>
+</td><td colspan="1" rowspan="1"><p>HTTP Polling berkala dari peramban client.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Firestore </strong><strong><code>onSnapshot</code></strong><strong> / Server-Sent Events (SSE)</strong> untuk pembaruan status kurir secara instan tanpa membebani kuota <em>read</em> database.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Distributed Rate Limiting</strong></p>
+</td><td colspan="1" rowspan="1"><p><em>In-memory Map</em> per kontainer Node.js.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Google Cloud Memorystore (Redis)</strong> atau <strong>Google Cloud Armor WAF</strong> untuk perlindungan rate limit terpusat antar-kontainer Cloud Run.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Ketahanan Jaringan Kurir</strong></p>
+</td><td colspan="1" rowspan="1"><p>Mengandalkan koneksi seluler aktif.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Offline-First Persistence (IndexedDB + Background Sync API)</strong> sehingga kurir di <em>blindspot</em> / basement tetap dapat memperbarui status paket secara lokal.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Verifikasi Bukti Pengantaran</strong></p>
+</td><td colspan="1" rowspan="1"><p>Validasi radius GPS 200m (Haversine).</p>
+</td><td colspan="1" rowspan="1"><p><strong>Proof of Delivery (POD)</strong>: Penambahan foto paket di lokasi penerima + tanda tangan digital pelanggan di layar ponsel kurir.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Optimalisasi Biaya API (FinOps)</strong></p>
+</td><td colspan="1" rowspan="1"><p>Pemanggilan live Maps &amp; Gemini API.</p>
+</td><td colspan="1" rowspan="1"><p><strong>Geo-caching rute statis</strong> pada Redis dan <em>client-side image compression</em> pada peramban sebelum dikirim ke Gemini untuk memangkas konsumsi token.</p>
+</td></tr>
+</table>
+<h2 is-upgraded>Tautan &amp; Referensi Teknis</h2>
+<ul>
+<li><strong>Repositori Proyek</strong>: <a href="https://github.com/putuwahyu29/nusaroute-ai" target="_blank">github.com/putuwahyu29/nusaroute-ai</a></li>
+<li><strong>Dokumentasi Google Gen AI SDK</strong>: <a href="https://ai.google.dev" target="_blank">ai.google.dev</a></li>
+<li><strong>Dokumentasi Google Cloud Run</strong>: <a href="https://cloud.google.com/run" target="_blank">cloud.google.com/run</a></li>
+</ul>
+<p>Dokumentasi ini disiapkan untuk sesi hands-on DevFest Cloud Surabaya 2026. Untuk pertanyaan teknis, pelaporan kendala, atau kontribusi kode, silakan akses repositori GitHub di atas.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

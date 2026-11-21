@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.env.*
+*.log
+service-account*.json
+.sa-key-tmp.json
+.git
+.DS_Store

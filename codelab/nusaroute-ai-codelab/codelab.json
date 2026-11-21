@@ -1,0 +1,34 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2026-11-21T10:04:19+07:00",
+  "id": "nusaroute-ai-codelab",
+  "duration": 112,
+  "title": "Membangun NusaRoute AI: Multimodal Agentic Logistics dengan Gemini, Google Maps, Firestore \u0026 Cloud Run",
+  "authors": "I Putu Agus Wahyu Dupayana",
+  "summary": "Panduan Hands-on Workshop DevFest Cloud Surabaya 2026: Membangun Multimodal Agent Logistik dengan Gemini, Google Maps, Cloud Firestore \u0026 Cloud Run",
+  "source": "codelab/nusaroute-ai-codelab.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "cloud",
+    "ai",
+    "web"
+  ],
+  "tags": [
+    "antigravity",
+    "cloudrun",
+    "devfest",
+    "firestore",
+    "gemini",
+    "googlemaps",
+    "mcp",
+    "surabaya"
+  ],
+  "feedback": "https://github.com/putuwahyu29/nusaroute-ai/issues",
+  "url": "nusaroute-ai-codelab"
+}

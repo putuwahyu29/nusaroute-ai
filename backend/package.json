@@ -1,0 +1,45 @@
+{
+  "name": "nusaroute-ai-backend",
+  "version": "1.0.0",
+  "description": "NusaRoute AI — Backend AI Service",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test:incident": "tsx src/scripts/test-incident.ts",
+    "test:voice": "tsx src/scripts/test-voice.ts",
+    "seed": "tsx src/scripts/seed-db.ts",
+    "reset": "tsx src/scripts/reset-db.ts",
+    "user:add": "tsx src/scripts/register-user.ts"
+  },
+  "keywords": [
+    "logistics",
+    "ai",
+    "gemini"
+  ],
+  "author": "NusaRoute AI",
+  "license": "ISC",
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^9.4.1",
+    "@google/genai": "^1.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.3.0",
+    "firebase-admin": "^14.5.1",
+    "multer": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
